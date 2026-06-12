@@ -1,0 +1,21 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.aps
+*.pch
+*.vspscc
+*.vssscc
+
+# 빌드 결과물
+x64/
+x86/
+Debug/
+Release/
+ipch/
+*.exe
+*.obj
+*.ilk
+*.pdb
+*.lib
+*.exp
