@@ -12,7 +12,7 @@
 | [시료 관리](docs/features/sample-management.md) | 시료 등록/목록/검색, 시료 속성(ID·이름·평균 생산시간·수율) |
 | [시료 주문](docs/features/order-placement.md) | 주문 접수(RESERVED 상태 생성), 입력값(시료 ID·고객명·수량), 주문번호 형식 |
 | [주문 승인/거절](docs/features/order-approval.md) | RESERVED 목록 확인, 재고 기반 자동 처리(CONFIRMED/PRODUCING), 거절(REJECTED) |
-| [모니터링](docs/features/monitoring.md) | 상태별 주문 수, 재고 현황 |
+| [모니터링](docs/features/monitoring.md) | 상태별 주문량 확인(REJECTED 제외), 시료별 재고량 확인(여유/부족/고갈) |
 | [생산라인](docs/features/production-line.md) | 생산라인 조회 |
 | [출고 처리](docs/features/release.md) | 출고 처리 |
 
