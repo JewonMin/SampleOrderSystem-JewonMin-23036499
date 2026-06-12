@@ -7,6 +7,9 @@
 *.vspscc
 *.vssscc
 
+# 문서
+*.pdf
+
 # 빌드 결과물
 x64/
 x86/
