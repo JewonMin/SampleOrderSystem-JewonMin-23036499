@@ -30,5 +30,5 @@ include/
 googletest/
 gtest_dl.zip
 
-# 런타임 데이터
-db/*.json
+# 런타임 데이터 (더미 데이터는 추적)
+# db/*.json

@@ -1,0 +1,86 @@
+[
+  {
+    "id": "S-001",
+    "name": "실리콘 웨이퍼-8인치",
+    "avgProductionTime": 0.05,
+    "yield": 0.92,
+    "stock": 480
+  },
+  {
+    "id": "S-002",
+    "name": "GaN 에피택셀-4인치",
+    "avgProductionTime": 0.05,
+    "yield": 0.78,
+    "stock": 220
+  },
+  {
+    "id": "S-003",
+    "name": "SiC 파워기판-6인치",
+    "avgProductionTime": 0.05,
+    "yield": 0.92,
+    "stock": 30
+  },
+  {
+    "id": "S-004",
+    "name": "포토레지스트-PR7",
+    "avgProductionTime": 0.05,
+    "yield": 0.95,
+    "stock": 910
+  },
+  {
+    "id": "S-005",
+    "name": "산화막 웨이퍼-SiO2",
+    "avgProductionTime": 0.05,
+    "yield": 0.88,
+    "stock": 0
+  },
+  {
+    "id": "S-006",
+    "name": "질화갈륨-GaN 기판",
+    "avgProductionTime": 0.05,
+    "yield": 0.85,
+    "stock": 150
+  },
+  {
+    "id": "S-007",
+    "name": "InP 광소자 기판",
+    "avgProductionTime": 0.05,
+    "yield": 0.80,
+    "stock": 75
+  },
+  {
+    "id": "S-008",
+    "name": "고저항 실리콘-HR-Si",
+    "avgProductionTime": 0.05,
+    "yield": 0.90,
+    "stock": 320
+  },
+  {
+    "id": "S-009",
+    "name": "SOI 웨이퍼-150nm",
+    "avgProductionTime": 0.05,
+    "yield": 0.87,
+    "stock": 60
+  },
+  {
+    "id": "S-010",
+    "name": "알루미나 세라믹-96%",
+    "avgProductionTime": 0.05,
+    "yield": 0.93,
+    "stock": 500
+  },
+  {
+    "id": "S-011",
+    "name": "사파이어 기판-C면",
+    "avgProductionTime": 0.05,
+    "yield": 0.82,
+    "stock": 40
+  },
+  {
+    "id": "S-012",
+    "name": "탄화규소-4H-SiC",
+    "avgProductionTime": 0.05,
+    "yield": 0.88,
+    "stock": 0
+  }
+]

@@ -1,0 +1,90 @@
+[
+  {
+    "orderId": "ORD-20260416-0001",
+    "sampleId": "S-001",
+    "customerName": "삼성전자",
+    "quantity": 100,
+    "status": "RELEASED",
+    "createdAt": "2026-04-16 09:00:00"
+  },
+  {
+    "orderId": "ORD-20260416-0002",
+    "sampleId": "S-004",
+    "customerName": "SK하이닉스",
+    "quantity": 500,
+    "status": "RELEASED",
+    "createdAt": "2026-04-16 10:30:00"
+  },
+  {
+    "orderId": "ORD-20260612-0003",
+    "sampleId": "S-001",
+    "customerName": "LG이노텍",
+    "quantity": 50,
+    "status": "CONFIRMED",
+    "createdAt": "2026-06-12 08:00:00"
+  },
+  {
+    "orderId": "ORD-20260612-0004",
+    "sampleId": "S-008",
+    "customerName": "현대전자",
+    "quantity": 100,
+    "status": "CONFIRMED",
+    "createdAt": "2026-06-12 08:30:00"
+  },
+  {
+    "orderId": "ORD-20260612-0005",
+    "sampleId": "S-003",
+    "customerName": "삼성전자 파운드리",
+    "quantity": 80,
+    "status": "PRODUCING",
+    "createdAt": "2026-06-12 09:00:00"
+  },
+  {
+    "orderId": "ORD-20260612-0006",
+    "sampleId": "S-005",
+    "customerName": "LG이노텍",
+    "quantity": 150,
+    "status": "PRODUCING",
+    "createdAt": "2026-06-12 09:05:00"
+  },
+  {
+    "orderId": "ORD-20260612-0007",
+    "sampleId": "S-003",
+    "customerName": "삼성전자 파운드리",
+    "quantity": 200,
+    "status": "PRODUCING",
+    "createdAt": "2026-06-12 09:10:00"
+  },
+  {
+    "orderId": "ORD-20260612-0008",
+    "sampleId": "S-005",
+    "customerName": "LG이노텍",
+    "quantity": 300,
+    "status": "RESERVED",
+    "createdAt": "2026-06-12 14:00:00"
+  },
+  {
+    "orderId": "ORD-20260612-0009",
+    "sampleId": "S-001",
+    "customerName": "SK하이닉스",
+    "quantity": 150,
+    "status": "RESERVED",
+    "createdAt": "2026-06-12 14:10:00"
+  },
+  {
+    "orderId": "ORD-20260612-0010",
+    "sampleId": "S-003",
+    "customerName": "삼성전자 파운드리",
+    "quantity": 200,
+    "status": "RESERVED",
+    "createdAt": "2026-06-12 14:20:00"
+  },
+  {
+    "orderId": "ORD-20260612-0011",
+    "sampleId": "S-012",
+    "customerName": "인텔코리아",
+    "quantity": 500,
+    "status": "REJECTED",
+    "createdAt": "2026-06-12 13:00:00"
+  }
+]

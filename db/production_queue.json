@@ -1,0 +1,29 @@
+[
+  {
+    "orderId": "ORD-20260612-0005",
+    "sampleId": "S-003",
+    "shortageQty": 50,
+    "actualProductQty": 61,
+    "totalProductionTime": 10.0,
+    "startedAtEpoch": 1781242612,
+    "startedAt": "2026-06-12 14:36:52"
+  },
+  {
+    "orderId": "ORD-20260612-0006",
+    "sampleId": "S-005",
+    "shortageQty": 150,
+    "actualProductQty": 190,
+    "totalProductionTime": 9.5,
+    "startedAtEpoch": 1781242612,
+    "startedAt": "2026-06-12 14:36:52"
+  },
+  {
+    "orderId": "ORD-20260612-0007",
+    "sampleId": "S-003",
+    "shortageQty": 170,
+    "actualProductQty": 206,
+    "totalProductionTime": 10.3,
+    "startedAtEpoch": 1781242612,
+    "startedAt": "2026-06-12 14:36:52"
+  }
+]
