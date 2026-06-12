@@ -25,7 +25,7 @@
 RESERVED ──▶ REJECTED       (생산 담당자 거절)
 RESERVED ──▶ CONFIRMED      (승인 + 재고 충분)
 RESERVED ──▶ PRODUCING      (승인 + 재고 부족)
-PRODUCING ──▶ RELEASED       (생산 완료 후 출고)
+PRODUCING ──▶ CONFIRMED      (생산 완료)
 CONFIRMED ──▶ RELEASED       (출고 처리)
 ```
 
@@ -36,5 +36,5 @@ CONFIRMED ──▶ RELEASED       (출고 처리)
 | `RESERVED` | `REJECTED` | 생산 담당자가 거절 |
 | `RESERVED` | `CONFIRMED` | 생산 담당자 승인 + 재고 충분 |
 | `RESERVED` | `PRODUCING` | 생산 담당자 승인 + 재고 부족 |
-| `PRODUCING` | `RELEASED` | 생산 완료 |
+| `PRODUCING` | `CONFIRMED` | 생산 완료 |
 | `CONFIRMED` | `RELEASED` | 출고 처리 |
