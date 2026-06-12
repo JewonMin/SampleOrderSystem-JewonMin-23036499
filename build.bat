@@ -100,22 +100,14 @@ if errorlevel 1 (
 )
 echo [OK] SampleOrderSystem.exe
 
-:: /test 인자 전달 시 무조건 테스트 실행
-:: /no-test 인자 전달 시 무조건 스킵
-:: 인자 없으면 사용자에게 질문
-set RUN_TEST=ASK
-if /i "%~1"=="/test"      set RUN_TEST=Y
-if /i "%~1"=="--test"     set RUN_TEST=Y
-if /i "%~1"=="/no-test"   set RUN_TEST=N
-if /i "%~1"=="--no-test"  set RUN_TEST=N
-if /i "!RUN_TEST!"=="ASK" (
-    echo.
-    set /p RUN_TEST="테스트를 실행하시겠습니까? [Y/N] : "
-)
+:: 기본값: 테스트 스킵  /  테스트 실행: build.bat --test
+set RUN_TEST=N
+if /i "%~1"=="/test"   set RUN_TEST=Y
+if /i "%~1"=="--test"  set RUN_TEST=Y
 if /i "!RUN_TEST!" NEQ "Y" (
     echo.
     echo ============================================================
-    echo   Build PASSED  (테스트 건너뜀)
+    echo   Build PASSED
     echo ============================================================
     exit /b 0
 )
