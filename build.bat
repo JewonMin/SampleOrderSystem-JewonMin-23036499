@@ -75,11 +75,17 @@ set CL_FLAGS=/std:c++17 /EHsc /utf-8 /O2 /W3 /nologo
 set INCLUDES=/I"include" /I"src"
 set GTEST_INCLUDES=/I"%GTEST_ROOT%\include" /I"%GTEST_ROOT%"
 
+:: ── 공통 소스 (Phase별 추가)
+set APP_SRC=src\main.cpp ^
+    src\repository\JsonRepository.cpp
+
+set SHARED_SRC=src\repository\JsonRepository.cpp
+
 :: ── 메인 앱 빌드
 echo.
 echo [*] 앱 빌드 중...
 cl.exe %CL_FLAGS% %INCLUDES% ^
-    src\main.cpp ^
+    %APP_SRC% ^
     /Fe:SampleOrderSystem.exe ^
     /Fo:build\ >build\build_app.log 2>&1
 if errorlevel 1 (
@@ -89,27 +95,50 @@ if errorlevel 1 (
 )
 echo [OK] SampleOrderSystem.exe 빌드 완료
 
-:: ── 테스트 빌드
+:: ── Phase 0 테스트 빌드 및 실행
+if not exist "build\p0" mkdir build\p0
 echo.
-echo [*] 테스트 빌드 중...
+echo [*] Phase 0 테스트 빌드 중...
 cl.exe %CL_FLAGS% %INCLUDES% %GTEST_INCLUDES% ^
     "%GTEST_ROOT%\src\gtest-all.cc" ^
     tests\test_phase0.cpp ^
     /Fe:build\test_phase0.exe ^
-    /Fo:build\ >build\build_test.log 2>&1
+    /Fo:build\p0\ >build\build_test0.log 2>&1
 if errorlevel 1 (
-    echo [ERROR] 테스트 빌드 실패:
-    type build\build_test.log
+    echo [ERROR] Phase 0 테스트 빌드 실패:
+    type build\build_test0.log
     exit /b 1
 )
 echo [OK] test_phase0.exe 빌드 완료
 
-:: ── 테스트 실행
-echo.
-echo [*] 테스트 실행 중...
+echo [*] Phase 0 테스트 실행 중...
 build\test_phase0.exe
 if errorlevel 1 (
-    echo [ERROR] 테스트 실패 - 빌드 성공으로 간주하지 않음
+    echo [ERROR] Phase 0 테스트 실패
+    exit /b 1
+)
+
+:: ── Phase 1 테스트 빌드 및 실행
+if not exist "build\p1" mkdir build\p1
+echo.
+echo [*] Phase 1 테스트 빌드 중...
+cl.exe %CL_FLAGS% %INCLUDES% %GTEST_INCLUDES% ^
+    "%GTEST_ROOT%\src\gtest-all.cc" ^
+    %SHARED_SRC% ^
+    tests\test_phase1.cpp ^
+    /Fe:build\test_phase1.exe ^
+    /Fo:build\p1\ >build\build_test1.log 2>&1
+if errorlevel 1 (
+    echo [ERROR] Phase 1 테스트 빌드 실패:
+    type build\build_test1.log
+    exit /b 1
+)
+echo [OK] test_phase1.exe 빌드 완료
+
+echo [*] Phase 1 테스트 실행 중...
+build\test_phase1.exe
+if errorlevel 1 (
+    echo [ERROR] Phase 1 테스트 실패
     exit /b 1
 )
 

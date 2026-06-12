@@ -3,6 +3,8 @@
 #include <iostream>
 #include <limits>
 
+#include "repository/JsonRepository.h"
+
 static void setupConsole() {
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
@@ -14,6 +16,9 @@ static void setupConsole() {
 
 int main() {
     setupConsole();
+
+    JsonRepository repo;
+    repo.load();
 
     int choice = -1;
     while (choice != 0) {
@@ -36,6 +41,7 @@ int main() {
         }
     }
 
+    repo.save();
     std::cout << "\n시스템을 종료합니다.\n";
     return 0;
 }
