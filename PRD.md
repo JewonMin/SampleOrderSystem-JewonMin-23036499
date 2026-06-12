@@ -13,7 +13,7 @@
 | [시료 주문](docs/features/order-placement.md) | 주문 접수(RESERVED 상태 생성), 입력값(시료 ID·고객명·수량), 주문번호 형식 |
 | [주문 승인/거절](docs/features/order-approval.md) | RESERVED 목록 확인, 재고 기반 자동 처리(CONFIRMED/PRODUCING), 거절(REJECTED) |
 | [모니터링](docs/features/monitoring.md) | 상태별 주문량 확인(REJECTED 제외), 시료별 재고량 확인(여유/부족/고갈) |
-| [생산라인](docs/features/production-line.md) | 생산라인 조회 |
+| [생산라인](docs/features/production-line.md) | 실생산량 공식(ceil(부족분/(수율×0.9))), 단일라인 FIFO, 생산 현황/대기 큐 조회 |
 | [출고 처리](docs/features/release.md) | 출고 처리 |
 
 ---
