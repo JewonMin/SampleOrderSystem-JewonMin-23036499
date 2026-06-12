@@ -79,10 +79,13 @@ set GTEST_INCLUDES=/I"%GTEST_ROOT%\include" /I"%GTEST_ROOT%"
 set APP_SRC=src\main.cpp ^
     src\repository\JsonRepository.cpp ^
     src\service\SampleService.cpp ^
-    src\view\SampleView.cpp
+    src\service\OrderService.cpp ^
+    src\view\SampleView.cpp ^
+    src\view\OrderView.cpp
 
 set SHARED_SRC=src\repository\JsonRepository.cpp ^
-    src\service\SampleService.cpp
+    src\service\SampleService.cpp ^
+    src\service\OrderService.cpp
 
 :: ── 메인 앱 빌드
 echo.
@@ -166,6 +169,30 @@ echo [*] Phase 2 테스트 실행 중...
 build\test_phase2.exe
 if errorlevel 1 (
     echo [ERROR] Phase 2 테스트 실패
+    exit /b 1
+)
+
+:: ── Phase 3 테스트 빌드 및 실행
+if not exist "build\p3" mkdir build\p3
+echo.
+echo [*] Phase 3 테스트 빌드 중...
+cl.exe %CL_FLAGS% %INCLUDES% %GTEST_INCLUDES% ^
+    "%GTEST_ROOT%\src\gtest-all.cc" ^
+    %SHARED_SRC% ^
+    tests\test_phase3.cpp ^
+    /Fe:build\test_phase3.exe ^
+    /Fo:build\p3\ >build\build_test3.log 2>&1
+if errorlevel 1 (
+    echo [ERROR] Phase 3 테스트 빌드 실패:
+    type build\build_test3.log
+    exit /b 1
+)
+echo [OK] test_phase3.exe 빌드 완료
+
+echo [*] Phase 3 테스트 실행 중...
+build\test_phase3.exe
+if errorlevel 1 (
+    echo [ERROR] Phase 3 테스트 실패
     exit /b 1
 )
 
