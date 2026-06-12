@@ -70,7 +70,7 @@ ApprovalService::ApprovalResult ApprovalService::approve(const std::string& orde
         result.totalProductionTime = 0.0;
 
         order->status  = OrderStatus::CONFIRMED;
-        sample->stock -= order->quantity;
+        sample->stock  = std::max(0, sample->stock - order->quantity);
     } else {
         // 재고 부족 → PRODUCING, 생산 큐 등록
         int    shortage   = order->quantity - effStock;
@@ -83,6 +83,7 @@ ApprovalService::ApprovalResult ApprovalService::approve(const std::string& orde
         result.totalProductionTime = totalTime;
 
         order->status = OrderStatus::PRODUCING;
+        sample->stock = 0; // 기존 실물 재고를 이 주문에 예약 (완료 시 shortage 기반 정산)
 
         std::time_t now = std::time(nullptr);
         struct tm t{};

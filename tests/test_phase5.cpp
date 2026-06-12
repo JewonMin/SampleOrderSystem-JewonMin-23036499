@@ -122,8 +122,9 @@ TEST_F(Phase5Test, complete_큐에서_제거) {
 }
 
 TEST_F(Phase5Test, complete_재고_정확히_갱신) {
-    // stock=30, actualQty=206, orderQty=200 → 30 + (206-200) = 36
-    addSample("S-001", 30);
+    // approve PRODUCING 시 실물재고 0으로 예약됨
+    // stock=0, actual=206, shortage=170 → 0 + (206-170) = 36
+    addSample("S-001", 0);
     addProducingOrder("ORD-0001", "S-001", 200, 170, 206, 164.8);
 
     service->complete("ORD-0001");
@@ -132,10 +133,10 @@ TEST_F(Phase5Test, complete_재고_정확히_갱신) {
 }
 
 TEST_F(Phase5Test, complete_초과생산_없을때_재고_0) {
-    // actualQty == orderQty → 재고 변동 없음 (기존 재고만 남음)
-    addSample("S-001", 50);
+    // approve PRODUCING 시 실물재고 0으로 예약됨
+    // stock=0, actual=100, shortage=50 → 0 + (100-50) = 50
+    addSample("S-001", 0);
     addProducingOrder("ORD-0001", "S-001", 100, 50, 100, 50.0);
-    // stock=50, actualQty=100, orderQty=100 → 50 + (100-100) = 50
 
     service->complete("ORD-0001");
 
@@ -189,7 +190,8 @@ TEST_F(Phase5Test, complete_PRODUCING_아닌_주문_예외) {
 // ── 영속성 ───────────────────────────────────────────────────────────────────
 
 TEST_F(Phase5Test, complete_후_저장_재로드_일치) {
-    addSample("S-001", 30);
+    // approve PRODUCING 시 실물재고 0으로 예약됨 → stock=0+(206-170)=36
+    addSample("S-001", 0);
     addProducingOrder("ORD-0001", "S-001", 200, 170, 206, 164.8);
 
     service->complete("ORD-0001");

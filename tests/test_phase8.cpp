@@ -70,13 +70,13 @@ TEST_F(Phase8Test, 전체플로우_재고부족_PRODUCING_CONFIRMED_RELEASED) {
     auto r = approvalSvc->approve(oid);
     EXPECT_EQ(r.decision, ApprovalService::ApprovalResult::Decision::PRODUCING);
     EXPECT_EQ(repo->orders()[0].status, OrderStatus::PRODUCING);
-    EXPECT_EQ(repo->samples()[0].stock, 30);   // 생산 승인 시 재고 불변
+    EXPECT_EQ(repo->samples()[0].stock, 0);    // 생산 승인 시 실물재고 예약(→0)
     ASSERT_EQ(repo->productionQueue().size(), 1u);
 
     productionSvc->complete(oid);
     EXPECT_EQ(repo->orders()[0].status, OrderStatus::CONFIRMED);
     EXPECT_TRUE(repo->productionQueue().empty());
-    // stock = 30 + (206 - 200) = 36
+    // stock = 0 + (206 - 170) = 36  (actual - shortage, 예약 재고 기반 정산)
     EXPECT_EQ(repo->samples()[0].stock, 36);
 
     releaseSvc->release(oid);

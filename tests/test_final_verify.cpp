@@ -530,8 +530,9 @@ TEST_F(FV, Production_autoComplete_연속여러건_순차완료) {
 }
 
 TEST_F(FV, Production_autoComplete_재고_정확히_갱신) {
-    // stock=30, actual=206, orderQty=200 → 30 + (206-200) = 36
-    rawSample("S-001", "시료", 0.5, 0.9, 30);
+    // approve PRODUCING 시 실물재고 0으로 예약됨
+    // stock=0, actual=206, shortage=170 → 0 + (206-170) = 36
+    rawSample("S-001", "시료", 0.5, 0.9, 0);
     rawOrder("ORD-A", "S-001", "고객", 200, OrderStatus::PRODUCING);
     long long past = static_cast<long long>(std::time(nullptr)) - 100000LL;
     rawQueue("ORD-A", "S-001", 170, 206, 1.0, past);

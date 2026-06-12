@@ -72,8 +72,8 @@ void ProductionService::complete(const std::string& orderId) {
     if (sampleIt == samples.end())
         throw std::invalid_argument("Sample not found: " + entryIt->sampleId);
 
-    // 생산된 수량 입고, 주문 수량 출고
-    sampleIt->stock += entryIt->actualProductQty - orderIt->quantity;
+    // 생산 잉여분 입고: 실생산량 - 부족분 (기존 실물 재고는 승인 시점에 예약됨)
+    sampleIt->stock += entryIt->actualProductQty - entryIt->shortageQty;
 
     orderIt->status = OrderStatus::CONFIRMED;
     queue.erase(entryIt);
