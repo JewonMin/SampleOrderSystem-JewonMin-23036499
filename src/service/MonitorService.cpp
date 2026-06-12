@@ -10,7 +10,7 @@ MonitorService::OrderSummary MonitorService::orderSummary() const {
             case OrderStatus::PRODUCING: ++s.producing; break;
             case OrderStatus::CONFIRMED: ++s.confirmed; break;
             case OrderStatus::RELEASED:  ++s.released;  break;
-            case OrderStatus::REJECTED:  ++s.rejected;  break;
+            case OrderStatus::REJECTED:  break;  // 모니터링 제외
         }
     }
     return s;
@@ -19,12 +19,26 @@ MonitorService::OrderSummary MonitorService::orderSummary() const {
 std::vector<MonitorService::StockInfo> MonitorService::stockStatus() const {
     std::vector<StockInfo> result;
     for (const auto& sample : m_repo.samples()) {
-        int inProd = 0;
+        int inProd   = 0;
+        int demandQty = 0;
+
         for (const auto& entry : m_repo.productionQueue())
             if (entry.sampleId == sample.id)
                 inProd += entry.actualProductQty;
 
-        result.push_back({sample.id, sample.name, sample.stock, inProd});
+        // 부족 판단: RESERVED + PRODUCING 미처리 주문 수량 합
+        for (const auto& o : m_repo.orders()) {
+            if (o.sampleId == sample.id &&
+                (o.status == OrderStatus::RESERVED || o.status == OrderStatus::PRODUCING))
+                demandQty += o.quantity;
+        }
+
+        StockStatus st;
+        if (sample.stock == 0)             st = StockStatus::DEPLETED;
+        else if (sample.stock < demandQty) st = StockStatus::SHORTAGE;
+        else                               st = StockStatus::SUFFICIENT;
+
+        result.push_back({sample.id, sample.name, sample.stock, inProd, demandQty, st});
     }
     return result;
 }

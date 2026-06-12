@@ -18,6 +18,11 @@ std::vector<ProductionService::ProductionInfo> ProductionService::list() const {
         info.totalProductionTime = entry.totalProductionTime;
         info.startedAt           = entry.startedAt;
 
+        // 원래 주문 수량 조회
+        info.orderQty = 0;
+        for (const auto& o : m_repo.orders())
+            if (o.orderId == entry.orderId) { info.orderQty = o.quantity; break; }
+
         const Sample* s = nullptr;
         for (const auto& sm : m_repo.samples())
             if (sm.id == entry.sampleId) { s = &sm; break; }
@@ -38,10 +43,10 @@ std::vector<ProductionService::ProductionInfo> ProductionService::list() const {
 
 void ProductionService::complete(const std::string& orderId) {
     auto& queue = m_repo.productionQueue();
-    auto entryIt = std::find_if(queue.begin(), queue.end(),
-        [&](const ProductionEntry& e) { return e.orderId == orderId; });
-    if (entryIt == queue.end())
-        throw std::invalid_argument("Production entry not found: " + orderId);
+    if (queue.empty() || queue.front().orderId != orderId)
+        throw std::logic_error("FIFO violation: only the first item can be completed: " + orderId);
+
+    auto entryIt = queue.begin();
 
     auto& orders = m_repo.orders();
     auto orderIt = std::find_if(orders.begin(), orders.end(),

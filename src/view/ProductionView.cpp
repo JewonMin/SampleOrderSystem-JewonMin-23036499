@@ -1,15 +1,18 @@
 #include "ProductionView.h"
+#include "ViewUtils.h"
 #include <iostream>
 #include <iomanip>
 #include <limits>
 #include <cstdio>
+#include <ctime>
 #include <string>
 
-static std::string progressBar(double pct) {
-    constexpr int BAR = 20;
-    int filled = static_cast<int>(pct / 100.0 * BAR + 0.5);
-    if (filled > BAR) filled = BAR;
-    return "[" + std::string(filled, '#') + std::string(BAR - filled, '-') + "]";
+static std::string etaStr(double remainMin) {
+    if (remainMin <= 0) return "완료 임박";
+    std::time_t eta = std::time(nullptr) + static_cast<std::time_t>(remainMin * 60.0);
+    char buf[16];
+    std::strftime(buf, sizeof(buf), "%H:%M", std::localtime(&eta));
+    return buf;
 }
 
 ProductionView::ProductionView(ProductionService& service) : m_service(service) {}
@@ -18,7 +21,8 @@ void ProductionView::run() {
     int choice = -1;
     while (choice != 0) {
         std::cout << "\n============================================================\n";
-        std::cout << "  [4] 생산라인 관리\n";
+        std::cout << Color::BOLD << "  [5] 생산라인 조회" << Color::RESET
+                  << "    FIFO 방식    " << currentTimeStr() << "\n";
         std::cout << "------------------------------------------------------------\n";
         std::cout << "  [1] 생산 현황 조회    [2] 생산 완료 처리    [0] 위로\n";
         std::cout << "  선택 > ";
@@ -32,8 +36,8 @@ void ProductionView::run() {
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
         switch (choice) {
-            case 1: showQueue();            break;
-            case 2: completeProduction();   break;
+            case 1: showQueue();          break;
+            case 2: completeProduction(); break;
             case 0: break;
             default: std::cout << "  잘못된 입력입니다.\n";
         }
@@ -42,37 +46,63 @@ void ProductionView::run() {
 
 void ProductionView::showQueue() {
     auto items = m_service.list();
+
+    std::string stateStr = items.empty()
+        ? (std::string(Color::CYAN) + "IDLE" + Color::RESET)
+        : (std::string(Color::BGREEN) + "RUNNING" + Color::RESET);
+    std::cout << "\n  생산라인 1개 (단일 라인)    현재 상태: " << stateStr << "\n";
+
     if (items.empty()) {
-        std::cout << "\n  (진행 중인 생산이 없습니다)\n";
+        std::cout << "  (진행 중인 생산이 없습니다)\n";
         return;
     }
 
-    std::cout << "\n  생산 현황  (" << items.size() << "건)\n\n";
-    std::cout << "  " << std::left
-              << std::setw(6)  << "번호"
-              << std::setw(22) << "주문번호"
-              << std::setw(16) << "시료"
-              << std::setw(10) << "생산수량"
-              << std::setw(28) << "진행률"
-              << "경과/총시간\n";
-    std::cout << "  " << std::string(88, '-') << "\n";
+    // ── 현재 처리 중 (FIFO 첫 번째) ──────────────────────────────────────────
+    const auto& cur = items[0];
+    double remainMin = cur.totalProductionTime - cur.elapsedMin;
 
-    for (int i = 0; i < static_cast<int>(items.size()); ++i) {
-        const auto& it = items[i];
-        char timeBuf[32];
-        std::snprintf(timeBuf, sizeof(timeBuf), "%.1f / %.1f min",
-                      it.elapsedMin, it.totalProductionTime);
-        char pctBuf[8];
-        std::snprintf(pctBuf, sizeof(pctBuf), " %5.1f%%", it.progressPct);
+    std::cout << "\n  " << Color::BOLD << "현재 처리 중" << Color::RESET << "\n";
+    std::cout << "  " << std::string(68, '-') << "\n";
+    std::cout << "  주문번호  " << Color::CYAN << cur.orderId << Color::RESET
+              << "    시료  " << cur.sampleName << "\n";
+    std::cout << "  주문량  " << cur.orderQty << " ea"
+              << "    재고부족  " << cur.shortageQty << " ea"
+              << "    실생산량  " << cur.actualProductQty << " ea\n";
 
-        std::cout << "  [" << std::left << std::setw(3) << (i + 1) << "] "
-                  << std::setw(22) << it.orderId
-                  << std::setw(16) << it.sampleName
-                  << std::setw(10) << it.actualProductQty
-                  << progressBar(it.progressPct) << pctBuf
-                  << "  " << timeBuf << "\n";
+    char pctBuf[8]; std::snprintf(pctBuf, sizeof(pctBuf), "%.1f%%", cur.progressPct);
+    std::cout << "  진행  "
+              << Color::BGREEN << progressBar(cur.progressPct) << Color::RESET
+              << "  " << Color::BYELLOW << pctBuf << Color::RESET
+              << "    완료 예정  " << etaStr(remainMin) << "\n";
+
+    if (items.size() == 1) {
+        std::cout << "  " << std::string(68, '-') << "\n";
+        return;
     }
-    std::cout << "\n  시작일시: " << items[0].startedAt << " (첫 번째 항목 기준)\n";
+
+    // ── 대기 중인 주문 (FIFO 순) ──────────────────────────────────────────────
+    std::cout << "\n  " << Color::BOLD << "대기 중인 주문  (FIFO 순)" << Color::RESET << "\n";
+    std::cout << "  " << std::string(68, '-') << "\n";
+    std::cout << "  "
+              << padRight("순서", 6)
+              << padRight("주문번호", 22)
+              << padRight("시료", 18)
+              << padRight("주문량", 8)
+              << padRight("부족분", 8)
+              << "실생산량\n";
+    std::cout << "  " << std::string(68, '-') << "\n";
+
+    for (size_t i = 1; i < items.size(); ++i) {
+        const auto& it = items[i];
+        std::cout << "  "
+                  << padRight(std::to_string(i), 6)
+                  << padRight(it.orderId,  22)
+                  << padRight(it.sampleName, 18)
+                  << padRight(std::to_string(it.orderQty)  + " ea", 8)
+                  << padRight(std::to_string(it.shortageQty) + " ea", 8)
+                  << it.actualProductQty << " ea\n";
+    }
+    std::cout << "  " << std::string(68, '-') << "\n";
 }
 
 void ProductionView::completeProduction() {
@@ -82,37 +112,19 @@ void ProductionView::completeProduction() {
         return;
     }
 
-    // 목록 표시
-    std::cout << "\n  완료 처리할 생산을 선택하세요\n\n";
-    for (int i = 0; i < static_cast<int>(items.size()); ++i) {
-        char pctBuf[8];
-        std::snprintf(pctBuf, sizeof(pctBuf), "%.1f%%", items[i].progressPct);
-        std::cout << "  [" << (i + 1) << "] "
-                  << items[i].orderId << "  "
-                  << items[i].sampleName << "  "
-                  << items[i].actualProductQty << " ea  "
-                  << pctBuf << "\n";
-    }
-    std::cout << "  [0] 취소\n";
-    std::cout << "  선택 > ";
+    // FIFO: 첫 번째 항목만 완료 가능
+    const auto& cur = items[0];
+    char pctBuf[8]; std::snprintf(pctBuf, sizeof(pctBuf), "%.1f%%", cur.progressPct);
 
-    int sel;
-    if (!(std::cin >> sel) || sel < 0 || sel > static_cast<int>(items.size())) {
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cout << "  잘못된 입력입니다.\n";
-        return;
-    }
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    if (sel == 0) return;
-
-    const auto& target = items[sel - 1];
-    std::cout << "\n  주문번호  " << target.orderId << "\n";
-    std::cout << "  시료      " << target.sampleName << "\n";
-    std::cout << "  생산수량  " << target.actualProductQty << " ea\n";
-    std::cout << "  진행률    ";
-    char pct[8]; std::snprintf(pct, sizeof(pct), "%.1f%%", target.progressPct);
-    std::cout << progressBar(target.progressPct) << " " << pct << "\n\n";
+    std::cout << "\n  " << Color::BOLD << "생산 완료 처리" << Color::RESET
+              << "  (FIFO — 첫 번째 항목만 처리 가능)\n";
+    std::cout << "  " << std::string(56, '-') << "\n";
+    std::cout << "  주문번호  " << Color::CYAN << cur.orderId << Color::RESET << "\n";
+    std::cout << "  시료      " << cur.sampleName << "\n";
+    std::cout << "  실생산량  " << cur.actualProductQty << " ea\n";
+    std::cout << "  진행률    "
+              << Color::BGREEN << progressBar(cur.progressPct) << Color::RESET
+              << "  " << Color::BYELLOW << pctBuf << Color::RESET << "\n\n";
     std::cout << "  생산 완료 처리하시겠습니까? [Y/N] > ";
 
     char confirm;
@@ -124,11 +136,13 @@ void ProductionView::completeProduction() {
     }
 
     try {
-        m_service.complete(target.orderId);
-        std::cout << "\n  생산 완료 처리됨.\n";
-        std::cout << "  상태 변경   PRODUCING  →  CONFIRMED\n";
-        std::cout << "  주문번호    " << target.orderId << "\n";
+        m_service.complete(cur.orderId);
+        std::cout << "\n  " << Color::BGREEN << "생산 완료 처리됨." << Color::RESET << "\n";
+        std::cout << "  상태 변경   "
+                  << Color::BYELLOW << "PRODUCING" << Color::RESET << "  →  "
+                  << Color::BGREEN  << "CONFIRMED" << Color::RESET << "\n";
+        std::cout << "  주문번호    " << cur.orderId << "\n";
     } catch (const std::exception& e) {
-        std::cout << "  [오류] " << e.what() << "\n";
+        std::cout << "  " << Color::BRED << "[오류] " << e.what() << Color::RESET << "\n";
     }
 }

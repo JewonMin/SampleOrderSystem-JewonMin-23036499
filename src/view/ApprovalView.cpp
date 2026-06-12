@@ -1,4 +1,5 @@
 #include "ApprovalView.h"
+#include "ViewUtils.h"
 #include <iostream>
 #include <iomanip>
 #include <limits>
@@ -12,7 +13,7 @@ void ApprovalView::run() {
     int choice = -1;
     while (choice != 0) {
         std::cout << "\n============================================================\n";
-        std::cout << "  [3] 주문 승인/거절\n";
+        std::cout << Color::BOLD << "  [3] 주문 승인/거절" << Color::RESET << "\n";
         std::cout << "------------------------------------------------------------\n";
         std::cout << "  [1] 승인/거절 처리    [0] 위로\n";
         std::cout << "  선택 > ";
@@ -40,12 +41,13 @@ void ApprovalView::showList() {
         return;
     }
 
-    std::cout << "\n  승인 대기 중인 예약 목록  (RESERVED)\n\n";
-    std::cout << "  " << std::left
-              << std::setw(6)  << "번호"
-              << std::setw(22) << "주문번호"
-              << std::setw(14) << "고객"
-              << std::setw(18) << "시료"
+    std::cout << "\n  " << Color::BOLD << "승인 대기 중인 예약 목록  "
+              << Color::CYAN << "(RESERVED)" << Color::RESET << "\n\n";
+    std::cout << "  "
+              << padRight("번호", 6)
+              << padRight("주문번호", 22)
+              << padRight("고객", 14)
+              << padRight("시료", 18)
               << "수량\n";
     std::cout << "  " << std::string(70, '-') << "\n";
 
@@ -58,9 +60,9 @@ void ApprovalView::showList() {
         std::snprintf(qtyBuf, sizeof(qtyBuf), "%d ea", o->quantity);
 
         std::cout << "  [" << std::left << std::setw(3) << (i + 1) << "] "
-                  << std::setw(22) << o->orderId
-                  << std::setw(14) << o->customerName
-                  << std::setw(18) << sampleName
+                  << padRight(o->orderId,      22)
+                  << padRight(o->customerName, 14)
+                  << padRight(sampleName,      18)
                   << qtyBuf << "\n";
     }
 
@@ -79,18 +81,17 @@ void ApprovalView::showList() {
 }
 
 void ApprovalView::processOrder(const std::string& orderId) {
-    // 재고 확인
     const Order* order = nullptr;
     for (const auto& o : m_approvalService.reservedOrders())
         if (o->orderId == orderId) { order = o; break; }
-    if (!order) { std::cout << "  [오류] 주문을 찾을 수 없습니다.\n"; return; }
+    if (!order) { std::cout << "  " << Color::BRED << "[오류] 주문을 찾을 수 없습니다." << Color::RESET << "\n"; return; }
 
     const Sample* sample = m_sampleService.findById(order->sampleId);
-    if (!sample) { std::cout << "  [오류] 시료를 찾을 수 없습니다.\n"; return; }
+    if (!sample) { std::cout << "  " << Color::BRED << "[오류] 시료를 찾을 수 없습니다." << Color::RESET << "\n"; return; }
 
-    int effStock = m_approvalService.effectiveStock(order->sampleId);
+    int effStock   = m_approvalService.effectiveStock(order->sampleId);
     bool sufficient = (effStock >= order->quantity);
-    int shortage = sufficient ? 0 : (order->quantity - effStock);
+    int shortage    = sufficient ? 0 : (order->quantity - effStock);
 
     std::cout << "\n  재고 확인 중...\n\n";
     std::cout << "  시료       " << sample->name
@@ -98,15 +99,15 @@ void ApprovalView::processOrder(const std::string& orderId) {
     std::cout << "  주문 수량  " << order->quantity << " ea";
 
     if (!sufficient) {
-        int actualQty  = ApprovalService::calcActualProductQty(shortage, sample->yield);
-        double totTime = ApprovalService::calcTotalProductionTime(actualQty, sample->avgProductionTime);
-        std::cout << "    부족분  " << shortage << " ea\n\n";
+        int    actualQty = ApprovalService::calcActualProductQty(shortage, sample->yield);
+        double totTime   = ApprovalService::calcTotalProductionTime(actualQty, sample->avgProductionTime);
+        std::cout << "    " << Color::YELLOW << "부족분  " << shortage << " ea" << Color::RESET << "\n\n";
         char timeBuf[32];
         std::snprintf(timeBuf, sizeof(timeBuf), "%.1f", totTime);
-        std::cout << "  재고 부족.  (실생산량: " << actualQty << " ea / "
-                  << timeBuf << " min)\n";
+        std::cout << "  " << Color::BYELLOW << "재고 부족." << Color::RESET
+                  << "  (실생산량: " << actualQty << " ea / " << timeBuf << " min)\n";
     } else {
-        std::cout << "\n\n  재고 충분.  즉시 처리 가능.\n";
+        std::cout << "\n\n  " << Color::BGREEN << "재고 충분.  즉시 처리 가능." << Color::RESET << "\n";
     }
 
     std::cout << "\n  [Y] 승인    [N] 거절\n  선택 > ";
@@ -118,23 +119,30 @@ void ApprovalView::processOrder(const std::string& orderId) {
     if (confirm == 'Y') {
         try {
             auto result = m_approvalService.approve(orderId);
-            std::cout << "\n  승인 완료.\n";
-            if (result.decision == ApprovalService::ApprovalResult::Decision::CONFIRMED)
-                std::cout << "  상태 변경   RESERVED  →  CONFIRMED\n";
-            else
-                std::cout << "  상태 변경   RESERVED  →  PRODUCING\n";
+            std::cout << "\n  " << Color::BGREEN << "승인 완료." << Color::RESET << "\n";
+            if (result.decision == ApprovalService::ApprovalResult::Decision::CONFIRMED) {
+                std::cout << "  상태 변경   "
+                          << Color::CYAN   << "RESERVED" << Color::RESET << "  →  "
+                          << Color::BGREEN << "CONFIRMED" << Color::RESET << "\n";
+            } else {
+                std::cout << "  상태 변경   "
+                          << Color::CYAN    << "RESERVED"  << Color::RESET << "  →  "
+                          << Color::BYELLOW << "PRODUCING" << Color::RESET << "\n";
+            }
             std::cout << "  주문번호    " << orderId << "\n";
         } catch (const std::exception& e) {
-            std::cout << "  [오류] " << e.what() << "\n";
+            std::cout << "  " << Color::BRED << "[오류] " << e.what() << Color::RESET << "\n";
         }
     } else if (confirm == 'N') {
         try {
             m_approvalService.reject(orderId);
             std::cout << "\n  거절 처리 완료.\n";
-            std::cout << "  상태 변경   RESERVED  →  REJECTED\n";
+            std::cout << "  상태 변경   "
+                      << Color::CYAN << "RESERVED" << Color::RESET << "  →  "
+                      << Color::RED  << "REJECTED" << Color::RESET << "\n";
             std::cout << "  주문번호    " << orderId << "\n";
         } catch (const std::exception& e) {
-            std::cout << "  [오류] " << e.what() << "\n";
+            std::cout << "  " << Color::BRED << "[오류] " << e.what() << Color::RESET << "\n";
         }
     } else {
         std::cout << "  취소되었습니다.\n";

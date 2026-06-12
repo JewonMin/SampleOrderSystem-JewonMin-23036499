@@ -9,6 +9,7 @@ public:
         std::string orderId;
         std::string sampleId;
         std::string sampleName;
+        int         orderQty;             // 원래 주문 수량
         int         shortageQty;
         int         actualProductQty;
         double      totalProductionTime;  // min

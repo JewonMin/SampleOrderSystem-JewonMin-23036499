@@ -159,12 +159,24 @@ TEST_F(Phase5Test, complete_여러_항목_중_하나만_처리) {
 // ── 오류 케이스 ───────────────────────────────────────────────────────────────
 
 TEST_F(Phase5Test, complete_없는_orderId_예외) {
-    EXPECT_THROW(service->complete("ORD-XXXX"), std::invalid_argument);
+    EXPECT_THROW(service->complete("ORD-XXXX"), std::logic_error);
+}
+
+TEST_F(Phase5Test, complete_FIFO_두번째_항목_직접완료_예외) {
+    addSample("S-001", 0);
+    addSample("S-002", 0);
+    addProducingOrder("ORD-0001", "S-001", 100, 100, 121, 96.8);
+    addProducingOrder("ORD-0002", "S-002", 50,  50,  61,  48.8);
+
+    // 두 번째 항목을 직접 완료 시도 → FIFO 위반 예외
+    EXPECT_THROW(service->complete("ORD-0002"), std::logic_error);
+    // 첫 번째 항목은 완료 가능
+    EXPECT_NO_THROW(service->complete("ORD-0001"));
 }
 
 TEST_F(Phase5Test, complete_PRODUCING_아닌_주문_예외) {
     addSample("S-001", 30);
-    // 큐에만 추가, 주문 상태는 CONFIRMED
+    // 큐에 첫 번째로 추가, 그러나 주문 상태는 CONFIRMED
     repo->orders().push_back(
         {"ORD-0001", "S-001", "고객", 200, OrderStatus::CONFIRMED, "2026-06-12 10:00:00"});
     long long now = static_cast<long long>(std::time(nullptr));

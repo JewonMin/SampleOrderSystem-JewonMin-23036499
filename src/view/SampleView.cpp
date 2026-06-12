@@ -1,36 +1,13 @@
 #include "SampleView.h"
+#include "ViewUtils.h"
 #include <iostream>
 #include <iomanip>
-#include <sstream>
 #include <algorithm>
 #include <limits>
 #include <cctype>
 #include <cstdio>
 
 static const int PAGE_SIZE = 5;
-
-// UTF-8 기준 터미널 표시 너비 계산 (ASCII=1, CJK/한글=2)
-static int displayWidth(const std::string& s) {
-    int w = 0;
-    for (size_t i = 0; i < s.size(); ) {
-        unsigned char c = static_cast<unsigned char>(s[i]);
-        if (c < 0x80) {
-            ++w; ++i;
-        } else if ((c & 0xE0) == 0xC0) {
-            ++w; i += 2;
-        } else if ((c & 0xF0) == 0xE0) {
-            w += 2; i += 3;
-        } else {
-            w += 2; i += 4;
-        }
-    }
-    return w;
-}
-
-static std::string padRight(const std::string& s, int width) {
-    int dw = displayWidth(s);
-    return dw >= width ? s : s + std::string(width - dw, ' ');
-}
 
 SampleView::SampleView(SampleService& service) : m_service(service) {}
 

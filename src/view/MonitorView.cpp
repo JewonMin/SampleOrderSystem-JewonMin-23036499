@@ -1,16 +1,9 @@
 #include "MonitorView.h"
+#include "ViewUtils.h"
 #include <iostream>
 #include <iomanip>
 #include <limits>
 #include <cstdio>
-#include <string>
-
-static std::string progressBar(double pct) {
-    constexpr int BAR = 16;
-    int filled = static_cast<int>(pct / 100.0 * BAR + 0.5);
-    if (filled > BAR) filled = BAR;
-    return "[" + std::string(filled, '#') + std::string(BAR - filled, '-') + "]";
-}
 
 MonitorView::MonitorView(MonitorService& monitorService,
                          ProductionService& productionService)
@@ -21,9 +14,10 @@ void MonitorView::run() {
     int choice = -1;
     while (choice != 0) {
         std::cout << "\n============================================================\n";
-        std::cout << "  [6] 모니터링\n";
+        std::cout << Color::BOLD << "  [4] 모니터링" << Color::RESET
+                  << "    " << currentTimeStr() << "\n";
         std::cout << "------------------------------------------------------------\n";
-        std::cout << "  [1] 대시보드 조회    [0] 위로\n";
+        std::cout << "  [1] 주문량 확인    [2] 재고량 확인    [0] 위로\n";
         std::cout << "  선택 > ";
 
         if (!(std::cin >> choice)) {
@@ -35,86 +29,65 @@ void MonitorView::run() {
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
         switch (choice) {
-            case 1: showDashboard(); break;
+            case 1: showOrderSummary(); break;
+            case 2: showStockStatus();  break;
             case 0: break;
             default: std::cout << "  잘못된 입력입니다.\n";
         }
     }
 }
 
-void MonitorView::showDashboard() {
-    auto summary = m_monitorService.orderSummary();
-    auto stocks  = m_monitorService.stockStatus();
-    auto prods   = m_productionService.list();
+void MonitorView::showOrderSummary() {
+    auto s = m_monitorService.orderSummary();
+    int total = s.reserved + s.producing + s.confirmed + s.released;
 
-    int total = summary.reserved + summary.producing + summary.confirmed
-              + summary.released + summary.rejected;
+    std::cout << "\n  상태별 주문 현황  (총 " << total << "건)\n";
+    std::cout << "  " << std::string(40, '-') << "\n";
 
-    // ── 주문 현황 ──
-    std::cout << "\n============================================================\n";
-    std::cout << "  주문 현황\n";
-    std::cout << "------------------------------------------------------------\n";
-    std::cout << "  전체: " << total << "건\n\n";
-    std::cout << "  " << std::left
-              << std::setw(14) << "RESERVED"
-              << std::setw(14) << "PRODUCING"
-              << std::setw(14) << "CONFIRMED"
-              << std::setw(14) << "RELEASED"
-              << "REJECTED\n";
+    auto row = [](const char* label, int cnt, const char* col) {
+        std::cout << "  " << col << padRight(label, 14) << Color::RESET
+                  << cnt << "건\n";
+    };
+    row("RESERVED",  s.reserved,  Color::CYAN);
+    row("PRODUCING", s.producing, Color::BYELLOW);
+    row("CONFIRMED", s.confirmed, Color::BGREEN);
+    row("RELEASED",  s.released,  Color::BLUE);
+    std::cout << "  " << std::string(40, '-') << "\n";
+}
+
+void MonitorView::showStockStatus() {
+    auto stocks = m_monitorService.stockStatus();
+
+    std::cout << "\n  재고 현황\n";
+    std::cout << "  " << std::string(68, '-') << "\n";
     std::cout << "  "
-              << std::setw(14) << summary.reserved
-              << std::setw(14) << summary.producing
-              << std::setw(14) << summary.confirmed
-              << std::setw(14) << summary.released
-              << summary.rejected << "\n";
+              << padRight("시료ID",   8)
+              << padRight("시료명",   22)
+              << padRight("현재재고", 12)
+              << padRight("생산중",   10)
+              << "상태\n";
+    std::cout << "  " << std::string(68, '-') << "\n";
 
-    // ── 시료 재고 현황 ──
-    std::cout << "\n------------------------------------------------------------\n";
-    std::cout << "  시료 재고 현황\n";
-    std::cout << "------------------------------------------------------------\n";
     if (stocks.empty()) {
         std::cout << "  (등록된 시료 없음)\n";
     } else {
-        std::cout << "  " << std::left
-                  << std::setw(10) << "시료ID"
-                  << std::setw(20) << "시료명"
-                  << std::setw(12) << "현재재고"
-                  << "생산중\n";
-        std::cout << "  " << std::string(54, '-') << "\n";
         for (const auto& s : stocks) {
+            const char* stCol  = Color::BGREEN;
+            const char* stText = "여유";
+            if      (s.status == MonitorService::StockStatus::DEPLETED) { stCol = Color::BRED;    stText = "고갈"; }
+            else if (s.status == MonitorService::StockStatus::SHORTAGE) { stCol = Color::BYELLOW; stText = "부족"; }
+
             char inProd[16] = "-";
             if (s.inProductionQty > 0)
                 std::snprintf(inProd, sizeof(inProd), "+%d ea", s.inProductionQty);
-            std::cout << "  " << std::left
-                      << std::setw(10) << s.id
-                      << std::setw(20) << s.name
-                      << std::setw(12) << (std::to_string(s.stock) + " ea")
-                      << inProd << "\n";
-        }
-    }
 
-    // ── 생산 현황 ──
-    std::cout << "\n------------------------------------------------------------\n";
-    std::cout << "  생산 현황\n";
-    std::cout << "------------------------------------------------------------\n";
-    if (prods.empty()) {
-        std::cout << "  (진행 중인 생산 없음)\n";
-    } else {
-        std::cout << "  " << std::left
-                  << std::setw(22) << "주문번호"
-                  << std::setw(16) << "시료"
-                  << std::setw(10) << "생산수량"
-                  << "진행률\n";
-        std::cout << "  " << std::string(70, '-') << "\n";
-        for (const auto& p : prods) {
-            char pct[8];
-            std::snprintf(pct, sizeof(pct), "%5.1f%%", p.progressPct);
-            std::cout << "  " << std::left
-                      << std::setw(22) << p.orderId
-                      << std::setw(16) << p.sampleName
-                      << std::setw(10) << p.actualProductQty
-                      << progressBar(p.progressPct) << " " << pct << "\n";
+            std::cout << "  "
+                      << padRight(s.id,   8)
+                      << padRight(s.name, 22)
+                      << padRight(std::to_string(s.stock) + " ea", 12)
+                      << padRight(inProd, 10)
+                      << stCol << stText << Color::RESET << "\n";
         }
     }
-    std::cout << "============================================================\n";
+    std::cout << "  " << std::string(68, '-') << "\n";
 }

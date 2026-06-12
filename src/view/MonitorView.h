@@ -8,7 +8,8 @@ public:
     void run();
 
 private:
-    void showDashboard();
+    void showOrderSummary();
+    void showStockStatus();
 
     MonitorService&    m_monitorService;
     ProductionService& m_productionService;

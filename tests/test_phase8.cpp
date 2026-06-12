@@ -118,7 +118,7 @@ TEST_F(Phase8Test, 모니터_카운트_전체_플로우_반영) {
     auto s1 = monitorSvc->orderSummary();
     EXPECT_EQ(s1.reserved,  1);
     EXPECT_EQ(s1.confirmed, 1);
-    EXPECT_EQ(s1.rejected,  1);
+    // REJECTED는 OrderSummary 대상 제외 (order-status.md)
 
     // o1 출고
     releaseSvc->release(o1);
