@@ -1,6 +1,5 @@
 @echo off
 setlocal EnableDelayedExpansion
-chcp 65001 >nul
 
 pushd "%~dp0."
 
@@ -8,7 +7,6 @@ echo ============================================================
 echo   SampleOrderSystem Build
 echo ============================================================
 
-:: ── VS 환경 ─────────────────────────────────────────────────────────────
 set "VCVARS="
 for %%P in (
     "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\vcvars64.bat"
@@ -20,25 +18,25 @@ for %%P in (
 )
 
 if not defined VCVARS (
-    echo [ERROR] Visual Studio not found. Check the paths in build.bat.
+    echo [ERROR] Visual Studio not found.
     pause & exit /b 1
 )
 call "!VCVARS!" >nul 2>&1
-echo [OK] VS: !VCVARS!
+echo [OK] VS ready
 
-:: ── nlohmann/json ────────────────────────────────────────────────────────
 if not exist "include\nlohmann\json.hpp" (
     echo [*] Downloading nlohmann/json...
     if not exist "include\nlohmann" mkdir include\nlohmann
     powershell -NoProfile -Command "Invoke-WebRequest -Uri 'https://github.com/nlohmann/json/releases/download/v3.11.3/json.hpp' -OutFile 'include\nlohmann\json.hpp'"
-    if not exist "include\nlohmann\json.hpp" ( echo [ERROR] Download failed. & pause & exit /b 1 )
-    echo [OK] json.hpp
+    if not exist "include\nlohmann\json.hpp" (
+        echo [ERROR] json.hpp download failed.
+        pause & exit /b 1
+    )
+    echo [OK] json.hpp downloaded
 )
 
-:: ── Build dirs ───────────────────────────────────────────────────────────
 if not exist "build" mkdir build
 
-:: ── Compile ──────────────────────────────────────────────────────────────
 set CL_FLAGS=/std:c++17 /EHsc /utf-8 /O2 /W3 /nologo
 set INC=/I"include" /I"src"
 set SRCS=src\main.cpp src\repository\JsonRepository.cpp src\service\SampleService.cpp src\service\OrderService.cpp src\service\ApprovalService.cpp src\service\ProductionService.cpp src\service\ReleaseService.cpp src\service\MonitorService.cpp src\view\SampleView.cpp src\view\OrderView.cpp src\view\ApprovalView.cpp src\view\ProductionView.cpp src\view\ReleaseView.cpp src\view\MonitorView.cpp
@@ -54,16 +52,14 @@ if errorlevel 1 (
 
 echo.
 echo ============================================================
-echo   Build PASSED  --  SampleOrderSystem.exe
+echo   Build PASSED  --  SampleOrderSystem.exe updated
 echo ============================================================
 
-:: ── Tests (opt-in) ───────────────────────────────────────────────────────
 set RUN_TEST=N
 if /i "%~1"=="/test"  set RUN_TEST=Y
 if /i "%~1"=="--test" set RUN_TEST=Y
 if /i "!RUN_TEST!" NEQ "Y" ( pause & exit /b 0 )
 
-:: Google Test
 if not exist "build\p0" mkdir build\p0
 if not exist "build\p1" mkdir build\p1
 if not exist "build\p2" mkdir build\p2
@@ -80,8 +76,11 @@ if not exist "googletest\googletest\include\gtest\gtest.h" (
     powershell -NoProfile -Command "Expand-Archive -Path 'gtest_dl.zip' -DestinationPath '.' -Force"
     if exist "googletest-1.14.0" rename "googletest-1.14.0" "googletest"
     if exist "gtest_dl.zip" del gtest_dl.zip
-    if not exist "googletest\googletest\include\gtest\gtest.h" ( echo [ERROR] GTest download failed. & pause & exit /b 1 )
-    echo [OK] Google Test
+    if not exist "googletest\googletest\include\gtest\gtest.h" (
+        echo [ERROR] Google Test download failed.
+        pause & exit /b 1
+    )
+    echo [OK] Google Test downloaded
 )
 
 set GT_INC=/I"googletest\googletest\include" /I"googletest\googletest"
@@ -89,7 +88,7 @@ set GT_OBJ=build\gtest-all.obj
 if not exist "%GT_OBJ%" (
     echo [*] Building gtest-all.obj...
     cl.exe %CL_FLAGS% %GT_INC% /c googletest\googletest\src\gtest-all.cc /Fo:%GT_OBJ% >nul 2>&1
-    if errorlevel 1 ( echo [ERROR] gtest-all failed. & pause & exit /b 1 )
+    if errorlevel 1 ( echo [ERROR] gtest-all build failed. & pause & exit /b 1 )
 )
 
 set REPO=src\repository\JsonRepository.cpp
@@ -119,7 +118,7 @@ for %%T in (0 1 2 3 4 5 6 7 8) do (
 
 echo.
 echo ============================================================
-echo   Build ^& Test ALL PASSED
+echo   Build + Test ALL PASSED
 echo ============================================================
 pause
 exit /b 0
