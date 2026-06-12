@@ -14,7 +14,7 @@
 | [주문 승인/거절](docs/features/order-approval.md) | RESERVED 목록 확인, 재고 기반 자동 처리(CONFIRMED/PRODUCING), 거절(REJECTED) |
 | [모니터링](docs/features/monitoring.md) | 상태별 주문량 확인(REJECTED 제외), 시료별 재고량 확인(여유/부족/고갈) |
 | [생산라인](docs/features/production-line.md) | 실생산량 공식(ceil(부족분/(수율×0.9))), 단일라인 FIFO, 생산 현황/대기 큐 조회 |
-| [출고 처리](docs/features/release.md) | 출고 처리 |
+| [출고 처리](docs/features/release.md) | CONFIRMED 주문 출고 실행, 상태 CONFIRMED → RELEASED |
 
 ---
 
