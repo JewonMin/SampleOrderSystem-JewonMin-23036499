@@ -14,17 +14,18 @@ SampleView::SampleView(SampleService& service) : m_service(service) {}
 void SampleView::run() {
     int choice = -1;
     while (choice != 0) {
-        std::cout << "\n============================================================\n";
-        std::cout << "  [1] 시료 관리\n";
-        std::cout << "------------------------------------------------------------\n";
-        std::cout << "  [1] 시료 등록    [2] 시료 목록    [3] 시료 검색    [0] 위로\n";
-        std::cout << "  선택 > ";
+        clearScreen();
+        std::cout << boxTop();
+        std::cout << boxRowA(std::string(Color::BOLD) + "  [1] 시료 관리" + Color::RESET, 15);
+        std::cout << boxDiv();
+        std::cout << boxRow("  [1] 시료 등록    [2] 시료 목록    [3] 시료 검색    [0] 위로");
+        std::cout << boxDiv();
+        std::cout << "\xe2\x95\x91 " << Color::BOLD << "  선택 ▶ " << Color::RESET << std::flush;
 
         if (!(std::cin >> choice)) {
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            choice = -1;
-            continue;
+            choice = -1; continue;
         }
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
@@ -33,85 +34,91 @@ void SampleView::run() {
             case 2: showList();     break;
             case 3: showSearch();   break;
             case 0: break;
-            default: std::cout << "  잘못된 입력입니다.\n";
+            default:
+                std::cout << boxRowA(std::string(Color::BRED) + "  잘못된 입력입니다." + Color::RESET, 14);
+                std::cout << boxBot(); Sleep(600);
         }
     }
 }
 
 void SampleView::showRegister() {
-    std::cout << "\n--- 시료 등록 ---\n";
+    clearScreen();
+    std::cout << boxTop();
+    std::cout << boxRowA(std::string(Color::BOLD) + "  시료 등록" + Color::RESET, 11);
+    std::cout << boxDiv();
+    std::cout << boxEmpty();
 
+    // 시료명
+    std::cout << "\xe2\x95\x91 " << "  시료명               ▶ " << std::flush;
     std::string name;
-    std::cout << "  시료명: ";
     std::getline(std::cin, name);
     if (name.empty()) {
-        std::cout << "  [오류] 시료명을 입력해야 합니다.\n";
-        return;
+        std::cout << boxRowA(std::string(Color::BRED) + "  [오류] 시료명을 입력해야 합니다." + Color::RESET, 24);
+        std::cout << boxBot(); Sleep(600); return;
     }
 
+    // 평균 생산시간
+    std::cout << "\xe2\x95\x91 " << "  평균 생산시간 (min)  ▶ " << std::flush;
     double avgTime = 0;
-    std::cout << "  평균 생산시간 (min/ea): ";
     if (!(std::cin >> avgTime) || avgTime <= 0) {
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cout << "  [오류] 평균 생산시간은 0 초과 숫자여야 합니다.\n";
-        return;
+        std::cin.clear(); std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << boxRowA(std::string(Color::BRED) + "  [오류] 0 초과 숫자여야 합니다." + Color::RESET, 22);
+        std::cout << boxBot(); Sleep(600); return;
     }
 
+    // 수율
+    std::cout << "\xe2\x95\x91 " << "  수율 (0 < y ≤ 1)    ▶ " << std::flush;
     double yield = 0;
-    std::cout << "  수율 (0 < 수율 <= 1): ";
     if (!(std::cin >> yield) || yield <= 0 || yield > 1) {
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cout << "  [오류] 수율은 0 초과 1 이하 숫자여야 합니다.\n";
-        return;
+        std::cin.clear(); std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << boxRowA(std::string(Color::BRED) + "  [오류] 0 초과 1 이하 숫자여야 합니다." + Color::RESET, 28);
+        std::cout << boxBot(); Sleep(600); return;
     }
 
+    // 초기 재고
+    std::cout << "\xe2\x95\x91 " << "  초기 재고 (ea)       ▶ " << std::flush;
     int stock = 0;
-    std::cout << "  초기 재고 (ea): ";
     if (!(std::cin >> stock) || stock < 0) {
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cout << "  [오류] 재고는 0 이상 정수여야 합니다.\n";
-        return;
+        std::cin.clear(); std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << boxRowA(std::string(Color::BRED) + "  [오류] 0 이상 정수여야 합니다." + Color::RESET, 22);
+        std::cout << boxBot(); Sleep(600); return;
     }
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     try {
         Sample s = m_service.add(name, avgTime, yield, stock);
-        std::cout << "\n  [완료] " << s.id << " / " << s.name << " 등록됨\n";
+        std::cout << boxEmpty();
+        std::cout << boxRowA(
+            std::string(Color::BGREEN) + "  ✓ 등록 완료" + Color::RESET, 12);
+        char timeBuf[32], yieldBuf[16];
+        std::snprintf(timeBuf,  sizeof(timeBuf),  "%.2f min/ea", s.avgProductionTime);
+        std::snprintf(yieldBuf, sizeof(yieldBuf), "%.2f",        s.yield);
+        std::cout << boxRow("  ID    " + s.id);
+        std::cout << boxRow("  시료명 " + s.name);
+        std::cout << boxRow("  생산시간 " + std::string(timeBuf) + "    수율 " + yieldBuf + "    재고 " + std::to_string(s.stock) + " ea");
+        std::cout << boxEmpty();
     } catch (const std::exception& e) {
-        std::cout << "  [오류] " << e.what() << "\n";
+        std::cout << boxRowA(std::string(Color::BRED) + "  [오류] " + e.what() + Color::RESET,
+            8 + (int)std::strlen(e.what()));
     }
-}
-
-static void printTableHeader() {
-    std::cout << "\n"
-              << padRight("ID",       8)
-              << padRight("시료명",   24)
-              << padRight("평균생산시간", 18)
-              << padRight("수율",     8)
-              << "현재재고\n"
-              << std::string(70, '-') << "\n";
-}
-
-static void printTableRow(const Sample& s) {
-    char timeBuf[32], yieldBuf[16];
-    std::snprintf(timeBuf,  sizeof(timeBuf),  "%.2f min/ea", s.avgProductionTime);
-    std::snprintf(yieldBuf, sizeof(yieldBuf), "%.2f",        s.yield);
-
-    std::cout << padRight(s.id,          8)
-              << padRight(s.name,        24)
-              << padRight(timeBuf,       18)
-              << padRight(yieldBuf,      8)
-              << s.stock << " ea\n";
+    std::cout << boxBot();
+    Sleep(1000);
 }
 
 void SampleView::showList() {
     const auto& samples = m_service.all();
+
+    clearScreen();
+    std::cout << boxTop();
+    std::cout << boxRowA(std::string(Color::BOLD) + "  시료 목록" + Color::RESET, 11);
+    std::cout << boxDiv();
+
     if (samples.empty()) {
-        std::cout << "\n  (등록된 시료가 없습니다)\n";
-        return;
+        std::cout << boxEmpty();
+        std::cout << boxRow(centerText("등록된 시료가 없습니다", INNER_W));
+        std::cout << boxEmpty();
+        std::cout << boxBot();
+        Sleep(600); return;
     }
 
     int total      = static_cast<int>(samples.size());
@@ -119,49 +126,121 @@ void SampleView::showList() {
     int page       = 0;
 
     while (true) {
+        // Re-draw box header only for page transitions
+        if (page > 0) {
+            clearScreen();
+            std::cout << boxTop();
+            char pageHdr[64];
+            std::snprintf(pageHdr, sizeof(pageHdr), "  시료 목록  (총 %d종,  %d/%d 페이지)", total, page+1, totalPages);
+            std::cout << boxRowA(std::string(Color::BOLD) + pageHdr + Color::RESET,
+                (int)std::strlen(pageHdr));
+            std::cout << boxDiv();
+        } else {
+            char pageHdr[64];
+            std::snprintf(pageHdr, sizeof(pageHdr), "  총 %d종,  %d/%d 페이지", total, page+1, totalPages);
+            std::cout << boxRow(pageHdr);
+            std::cout << boxDiv();
+        }
+
         int start = page * PAGE_SIZE;
         int end   = std::min(start + PAGE_SIZE, total);
 
-        std::cout << "\n등록 시료 목록  (총 " << total << "종, "
-                  << (page + 1) << "/" << totalPages << " 페이지)\n";
-        printTableHeader();
-        for (int i = start; i < end; ++i)
-            printTableRow(samples[i]);
+        std::string hdr = padRight("  ID",  10) + padRight("시료명", 20)
+                        + padRight("생산시간", 16) + padRight("수율", 8) + "재고";
+        std::cout << boxEmpty();
+        std::cout << boxRow(hdr);
+        std::cout << boxRow("  " + sline(INNER_W - 2));
+
+        for (int i = start; i < end; ++i) {
+            const Sample& s = samples[i];
+            char timeBuf[32], yieldBuf[16];
+            std::snprintf(timeBuf,  sizeof(timeBuf),  "%.2f min/ea", s.avgProductionTime);
+            std::snprintf(yieldBuf, sizeof(yieldBuf), "%.2f",        s.yield);
+            std::string row = padRight("  " + s.id, 10)
+                            + padRight(s.name, 20)
+                            + padRight(timeBuf, 16)
+                            + padRight(yieldBuf, 8)
+                            + std::to_string(s.stock) + " ea";
+            std::cout << boxRow(row);
+        }
+
+        std::cout << boxEmpty();
 
         bool hasPrev = (page > 0);
         bool hasNext = (end < total);
-        if (!hasPrev && !hasNext) break;
 
-        std::cout << "\n  ";
-        if (hasPrev) std::cout << "[P] 이전페이지  ";
-        if (hasNext) std::cout << "[N] 다음페이지  ";
-        std::cout << "[0] 돌아가기\n  선택 > ";
+        if (!hasPrev && !hasNext) {
+            std::cout << boxDiv();
+            std::cout << boxRow(std::string(Color::DIM) + "  임의 키를 눌러 돌아가세요" + Color::RESET);
+            std::cout << boxBot();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            break;
+        }
 
-        char nav;
-        std::cin >> nav;
+        std::cout << boxDiv();
+        std::string nav = "  ";
+        if (hasPrev) nav += "[P] 이전    ";
+        if (hasNext) nav += "[N] 다음    ";
+        nav += "[0] 위로";
+        std::cout << boxRow(nav);
+        std::cout << boxDiv();
+        std::cout << "\xe2\x95\x91 " << Color::BOLD << "  선택 ▶ " << Color::RESET << std::flush;
+
+        char c; std::cin >> c;
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        nav = static_cast<char>(std::toupper(static_cast<unsigned char>(nav)));
+        c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
 
-        if      (nav == 'N' && hasNext) ++page;
-        else if (nav == 'P' && hasPrev) --page;
-        else break;
+        if      (c == 'N' && hasNext) ++page;
+        else if (c == 'P' && hasPrev) --page;
+        else { std::cout << boxBot(); break; }
     }
 }
 
 void SampleView::showSearch() {
-    std::cout << "\n--- 시료 검색 (이름) ---\n  검색어: ";
+    clearScreen();
+    std::cout << boxTop();
+    std::cout << boxRowA(std::string(Color::BOLD) + "  시료 검색" + Color::RESET, 11);
+    std::cout << boxDiv();
+    std::cout << "\xe2\x95\x91 " << "  검색어 ▶ " << std::flush;
 
     std::string keyword;
     std::getline(std::cin, keyword);
 
     auto results = m_service.searchByName(keyword);
+
     if (results.empty()) {
-        std::cout << "  (검색 결과 없음)\n";
-        return;
+        std::cout << boxEmpty();
+        std::cout << boxRow(centerText("검색 결과가 없습니다", INNER_W));
+        std::cout << boxEmpty();
+        std::cout << boxBot();
+        Sleep(600); return;
     }
 
-    std::cout << "\n검색 결과 (" << results.size() << "건)\n";
-    printTableHeader();
-    for (const auto* s : results)
-        printTableRow(*s);
+    char hdr[64]; std::snprintf(hdr, sizeof(hdr), "  검색 결과  %d건", (int)results.size());
+    std::cout << boxRow(hdr);
+    std::cout << boxDiv();
+    std::cout << boxEmpty();
+
+    std::string colHdr = padRight("  ID", 10) + padRight("시료명", 20)
+                       + padRight("생산시간", 16) + padRight("수율", 8) + "재고";
+    std::cout << boxRow(colHdr);
+    std::cout << boxRow("  " + sline(INNER_W - 2));
+
+    for (const auto* s : results) {
+        char timeBuf[32], yieldBuf[16];
+        std::snprintf(timeBuf,  sizeof(timeBuf),  "%.2f min/ea", s->avgProductionTime);
+        std::snprintf(yieldBuf, sizeof(yieldBuf), "%.2f",        s->yield);
+        std::string row = padRight("  " + s->id, 10)
+                        + padRight(s->name, 20)
+                        + padRight(timeBuf, 16)
+                        + padRight(yieldBuf, 8)
+                        + std::to_string(s->stock) + " ea";
+        std::cout << boxRow(row);
+    }
+
+    std::cout << boxEmpty();
+    std::cout << boxDiv();
+    std::cout << boxRow(std::string(Color::DIM) + "  임의 키를 눌러 돌아가세요" + Color::RESET);
+    std::cout << boxBot();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }

@@ -7,7 +7,7 @@ public:
     void run();
 
 private:
-    void showQueue();
+    void showLiveQueue();
     void completeProduction();
 
     ProductionService& m_service;
