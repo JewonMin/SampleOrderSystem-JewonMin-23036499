@@ -25,3 +25,12 @@ ipch/
 *.pdb
 *.lib
 *.exp
+build/
+
+# 자동 다운로드 라이브러리
+include/
+googletest/
+gtest_dl.zip
+
+# 런타임 데이터
+db/*.json
