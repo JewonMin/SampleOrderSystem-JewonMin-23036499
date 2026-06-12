@@ -78,6 +78,7 @@ if not exist "build\p1" mkdir build\p1
 if not exist "build\p2" mkdir build\p2
 if not exist "build\p3" mkdir build\p3
 if not exist "build\p4" mkdir build\p4
+if not exist "build\p5" mkdir build\p5
 
 :: ?? Compiler settings (single-line variables only)
 set CL_FLAGS=/std:c++17 /EHsc /utf-8 /O2 /W3 /nologo
@@ -88,14 +89,16 @@ set REPO=src\repository\JsonRepository.cpp
 set SVC_S=src\service\SampleService.cpp
 set SVC_O=src\service\OrderService.cpp
 set SVC_A=src\service\ApprovalService.cpp
+set SVC_P=src\service\ProductionService.cpp
 set VIEW_S=src\view\SampleView.cpp
 set VIEW_O=src\view\OrderView.cpp
 set VIEW_A=src\view\ApprovalView.cpp
+set VIEW_P=src\view\ProductionView.cpp
 
 :: ?? App build
 echo.
 echo [*] Building app...
-cl.exe %CL_FLAGS% %INC% src\main.cpp %REPO% %SVC_S% %SVC_O% %SVC_A% %VIEW_S% %VIEW_O% %VIEW_A% /Fe:SampleOrderSystem.exe /Fo:build\ >build\build_app.log 2>&1
+cl.exe %CL_FLAGS% %INC% src\main.cpp %REPO% %SVC_S% %SVC_O% %SVC_A% %SVC_P% %VIEW_S% %VIEW_O% %VIEW_A% %VIEW_P% /Fe:SampleOrderSystem.exe /Fo:build\ >build\build_app.log 2>&1
 if errorlevel 1 (
     echo [ERROR] App build failed:
     type build\build_app.log
@@ -147,6 +150,15 @@ if errorlevel 1 ( echo [ERROR] Phase 4 build failed: & type build\build_test4.lo
 echo [OK] test_phase4.exe
 build\test_phase4.exe
 if errorlevel 1 ( echo [ERROR] Phase 4 tests FAILED & exit /b 1 )
+
+:: ?? Phase 5 test
+echo.
+echo [*] Building Phase 5 tests...
+cl.exe %CL_FLAGS% %INC% %GT_INC% %GT_SRC% %REPO% %SVC_S% %SVC_O% %SVC_A% %SVC_P% tests\test_phase5.cpp /Fe:build\test_phase5.exe /Fo:build\p5\ >build\build_test5.log 2>&1
+if errorlevel 1 ( echo [ERROR] Phase 5 build failed: & type build\build_test5.log & exit /b 1 )
+echo [OK] test_phase5.exe
+build\test_phase5.exe
+if errorlevel 1 ( echo [ERROR] Phase 5 tests FAILED & exit /b 1 )
 
 echo.
 echo ============================================================

@@ -10,6 +10,8 @@
 #include "view/SampleView.h"
 #include "view/OrderView.h"
 #include "view/ApprovalView.h"
+#include "service/ProductionService.h"
+#include "view/ProductionView.h"
 
 static void setupConsole() {
     SetConsoleOutputCP(CP_UTF8);
@@ -28,11 +30,13 @@ int main() {
 
     SampleService   sampleService(repo);
     OrderService    orderService(repo);
-    ApprovalService approvalService(repo);
+    ApprovalService  approvalService(repo);
+    ProductionService productionService(repo);
 
-    SampleView   sampleView(sampleService);
-    OrderView    orderView(orderService, sampleService);
-    ApprovalView approvalView(approvalService, sampleService);
+    SampleView    sampleView(sampleService);
+    OrderView     orderView(orderService, sampleService);
+    ApprovalView  approvalView(approvalService, sampleService);
+    ProductionView productionView(productionService);
 
     int choice = -1;
     while (choice != 0) {
@@ -42,6 +46,7 @@ int main() {
         std::cout << "  [1] 시료 관리\n";
         std::cout << "  [2] 시료 주문\n";
         std::cout << "  [3] 주문 승인/거절\n";
+        std::cout << "  [4] 생산라인 관리\n";
         std::cout << "  [0] 종료\n";
         std::cout << "------------------------------------------------------------\n";
         std::cout << "  선택 > ";
@@ -55,9 +60,10 @@ int main() {
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
         switch (choice) {
-            case 1: sampleView.run();   break;
-            case 2: orderView.run();    break;
-            case 3: approvalView.run(); break;
+            case 1: sampleView.run();      break;
+            case 2: orderView.run();       break;
+            case 3: approvalView.run();    break;
+            case 4: productionView.run();  break;
             case 0: break;
             default: std::cout << "  (준비 중인 메뉴입니다)\n";
         }
