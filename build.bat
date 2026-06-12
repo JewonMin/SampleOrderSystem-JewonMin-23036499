@@ -79,6 +79,7 @@ if not exist "build\p2" mkdir build\p2
 if not exist "build\p3" mkdir build\p3
 if not exist "build\p4" mkdir build\p4
 if not exist "build\p5" mkdir build\p5
+if not exist "build\p6" mkdir build\p6
 
 :: ?? Compiler settings (single-line variables only)
 set CL_FLAGS=/std:c++17 /EHsc /utf-8 /O2 /W3 /nologo
@@ -95,6 +96,8 @@ set VIEW_S=src\view\SampleView.cpp
 set VIEW_O=src\view\OrderView.cpp
 set VIEW_A=src\view\ApprovalView.cpp
 set VIEW_P=src\view\ProductionView.cpp
+set SVC_R=src\service\ReleaseService.cpp
+set VIEW_R=src\view\ReleaseView.cpp
 
 :: ?? gtest-all.obj (compiled once, reused by all phase tests)
 if not exist "%GT_OBJ%" (
@@ -107,7 +110,7 @@ if not exist "%GT_OBJ%" (
 :: ?? App build
 echo.
 echo [*] Building app...
-cl.exe %CL_FLAGS% %INC% src\main.cpp %REPO% %SVC_S% %SVC_O% %SVC_A% %SVC_P% %VIEW_S% %VIEW_O% %VIEW_A% %VIEW_P% /Fe:SampleOrderSystem.exe /Fo:build\ >build\build_app.log 2>&1
+cl.exe %CL_FLAGS% %INC% src\main.cpp %REPO% %SVC_S% %SVC_O% %SVC_A% %SVC_P% %SVC_R% %VIEW_S% %VIEW_O% %VIEW_A% %VIEW_P% %VIEW_R% /Fe:SampleOrderSystem.exe /Fo:build\ >build\build_app.log 2>&1
 if errorlevel 1 (
     echo [ERROR] App build failed:
     type build\build_app.log
@@ -168,6 +171,15 @@ if errorlevel 1 ( echo [ERROR] Phase 5 build failed: & type build\build_test5.lo
 echo [OK] test_phase5.exe
 build\test_phase5.exe
 if errorlevel 1 ( echo [ERROR] Phase 5 tests FAILED & exit /b 1 )
+
+:: ?? Phase 6 test
+echo.
+echo [*] Building Phase 6 tests...
+cl.exe %CL_FLAGS% %INC% %GT_INC% %GT_OBJ% %REPO% %SVC_R% tests\test_phase6.cpp /Fe:build\test_phase6.exe /Fo:build\p6\ >build\build_test6.log 2>&1
+if errorlevel 1 ( echo [ERROR] Phase 6 build failed: & type build\build_test6.log & exit /b 1 )
+echo [OK] test_phase6.exe
+build\test_phase6.exe
+if errorlevel 1 ( echo [ERROR] Phase 6 tests FAILED & exit /b 1 )
 
 echo.
 echo ============================================================
