@@ -6,7 +6,7 @@ chcp 65001 >nul
 cd /d "%~dp0"
 
 echo ============================================================
-echo   SampleOrderSystem Build ^& Test
+echo   SampleOrderSystem Build
 echo ============================================================
 
 :: ?? Visual Studio environment setup (vswhere first, hardcoded fallbacks)
@@ -57,20 +57,6 @@ if not exist "include\nlohmann\json.hpp" (
     echo [OK] json.hpp downloaded
 )
 
-:: ?? Google Test download
-if not exist "googletest\googletest\include\gtest\gtest.h" (
-    echo [*] Downloading Google Test v1.14.0...
-    powershell -NoProfile -Command "Invoke-WebRequest -Uri 'https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip' -OutFile 'gtest_dl.zip'"
-    powershell -NoProfile -Command "Expand-Archive -Path 'gtest_dl.zip' -DestinationPath '.' -Force"
-    if exist "googletest-1.14.0" rename "googletest-1.14.0" "googletest"
-    if exist "gtest_dl.zip" del gtest_dl.zip
-    if not exist "googletest\googletest\include\gtest\gtest.h" (
-        echo [ERROR] Failed to download Google Test
-        exit /b 1
-    )
-    echo [OK] Google Test downloaded
-)
-
 :: ?? Build directories
 if not exist "build"    mkdir build
 if not exist "build\p0" mkdir build\p0
@@ -103,14 +89,6 @@ set VIEW_R=src\view\ReleaseView.cpp
 set SVC_M=src\service\MonitorService.cpp
 set VIEW_M=src\view\MonitorView.cpp
 
-:: ?? gtest-all.obj (compiled once, reused by all phase tests)
-if not exist "%GT_OBJ%" (
-    echo [*] Compiling gtest-all.obj ...
-    cl.exe %CL_FLAGS% %GT_INC% /c %GT_SRC% /Fo:%GT_OBJ% >build\build_gtest.log 2>&1
-    if errorlevel 1 ( echo [ERROR] gtest-all build failed: & type build\build_gtest.log & exit /b 1 )
-    echo [OK] gtest-all.obj
-)
-
 :: ?? App build
 echo.
 echo [*] Building app...
@@ -121,6 +99,48 @@ if errorlevel 1 (
     exit /b 1
 )
 echo [OK] SampleOrderSystem.exe
+
+:: /test 인자 전달 시 무조건 테스트 실행
+:: /no-test 인자 전달 시 무조건 스킵
+:: 인자 없으면 사용자에게 질문
+set RUN_TEST=ASK
+if /i "%~1"=="/test"      set RUN_TEST=Y
+if /i "%~1"=="--test"     set RUN_TEST=Y
+if /i "%~1"=="/no-test"   set RUN_TEST=N
+if /i "%~1"=="--no-test"  set RUN_TEST=N
+if /i "!RUN_TEST!"=="ASK" (
+    echo.
+    set /p RUN_TEST="테스트를 실행하시겠습니까? [Y/N] : "
+)
+if /i "!RUN_TEST!" NEQ "Y" (
+    echo.
+    echo ============================================================
+    echo   Build PASSED  (테스트 건너뜀)
+    echo ============================================================
+    exit /b 0
+)
+
+:: ?? Google Test download (테스트 실행 시에만 필요)
+if not exist "googletest\googletest\include\gtest\gtest.h" (
+    echo [*] Downloading Google Test v1.14.0...
+    powershell -NoProfile -Command "Invoke-WebRequest -Uri 'https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip' -OutFile 'gtest_dl.zip'"
+    powershell -NoProfile -Command "Expand-Archive -Path 'gtest_dl.zip' -DestinationPath '.' -Force"
+    if exist "googletest-1.14.0" rename "googletest-1.14.0" "googletest"
+    if exist "gtest_dl.zip" del gtest_dl.zip
+    if not exist "googletest\googletest\include\gtest\gtest.h" (
+        echo [ERROR] Failed to download Google Test
+        exit /b 1
+    )
+    echo [OK] Google Test downloaded
+)
+
+:: ?? gtest-all.obj (compiled once, reused by all phase tests)
+if not exist "%GT_OBJ%" (
+    echo [*] Compiling gtest-all.obj ...
+    cl.exe %CL_FLAGS% %GT_INC% /c %GT_SRC% /Fo:%GT_OBJ% >build\build_gtest.log 2>&1
+    if errorlevel 1 ( echo [ERROR] gtest-all build failed: & type build\build_gtest.log & exit /b 1 )
+    echo [OK] gtest-all.obj
+)
 
 :: ?? Phase 0 test
 echo.

@@ -41,6 +41,16 @@ std::vector<ProductionService::ProductionInfo> ProductionService::list() const {
     return result;
 }
 
+void ProductionService::autoComplete() {
+    while (!m_repo.productionQueue().empty()) {
+        const auto& front = m_repo.productionQueue().front();
+        const long long now = static_cast<long long>(std::time(nullptr));
+        double elapsedMin = static_cast<double>(now - front.startedAtEpoch) / 60.0;
+        if (elapsedMin < front.totalProductionTime) break;
+        complete(front.orderId);
+    }
+}
+
 void ProductionService::complete(const std::string& orderId) {
     auto& queue = m_repo.productionQueue();
     if (queue.empty() || queue.front().orderId != orderId)

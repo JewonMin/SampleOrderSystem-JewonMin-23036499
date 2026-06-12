@@ -51,6 +51,7 @@ int main() {
 
     int choice = -1;
     while (choice != 0) {
+        productionService.autoComplete();
         clearScreen();
 
         // ── 집계 ────────────────────────────────────────────────────────────

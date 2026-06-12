@@ -7,8 +7,5 @@ public:
     void run();
 
 private:
-    void showLiveQueue();
-    void completeProduction();
-
     ProductionService& m_service;
 };

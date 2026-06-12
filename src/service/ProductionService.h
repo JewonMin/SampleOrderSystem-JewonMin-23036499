@@ -22,6 +22,7 @@ public:
 
     std::vector<ProductionInfo> list() const;
     void complete(const std::string& orderId);
+    void autoComplete();
 
 private:
     JsonRepository& m_repo;
