@@ -1,0 +1,135 @@
+﻿<!DOCTYPE html>
+<html lang='ko'>
+<head>
+<meta charset='UTF-8'>
+<title>SampleOrderSystem - Final Verify Test Report</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI','Malgun Gothic',sans-serif;background:#f0f2f5;color:#1a1a2e}
+.hd{background:linear-gradient(135deg,#1a1a2e,#0f3460);color:#fff;padding:36px 48px}
+.hd h1{font-size:1.75rem;font-weight:700}
+.hd .sub{margin-top:8px;color:#93c5fd;font-size:.9rem}
+.sm{display:flex;gap:24px;flex-wrap:wrap;padding:20px 48px;background:#fff;border-bottom:1px solid #e2e8f0}
+.st{display:flex;flex-direction:column;align-items:center;min-width:90px}
+.st .v{font-size:2rem;font-weight:800}
+.st .l{font-size:.7rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.st.ps .v{color:#22c55e}.st.fl .v{color:#ef4444}.st.tt .v{color:#3b82f6}.st.tm .v{color:#8b5cf6;font-size:1.4rem}
+.pb{height:8px;background:#e2e8f0;margin:0 48px;border-radius:4px;overflow:hidden}
+.pf{height:100%;background:linear-gradient(90deg,#22c55e,#16a34a);border-radius:4px}
+.ct{padding:24px 48px}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+th{background:#1a1a2e;color:#e2e8f0;padding:12px 16px;text-align:left;font-size:.75rem;text-transform:uppercase;letter-spacing:.07em}
+td{padding:9px 16px;font-size:.85rem;border-bottom:1px solid #f1f5f9;vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr.sec td{background:#f8fafc;color:#334155;font-weight:700;font-size:.875rem;padding:10px 16px;border-top:2px solid #e2e8f0}
+tr:not(.sec):hover td{background:#f0f9ff}
+td.n{color:#94a3b8;font-size:.75rem;width:42px;text-align:right;padding-right:12px}
+td.nm code{font-family:Consolas,monospace;font-size:.78rem;color:#1e40af}
+td.dc{color:#475569}
+td.st{text-align:center;width:88px}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:.77rem;font-weight:600}
+.badge.pass{background:#dcfce7;color:#166534}
+.badge.fail{background:#fee2e2;color:#991b1b}
+.btag{display:inline-block;margin-left:5px;padding:1px 7px;background:#fef3c7;color:#92400e;border-radius:10px;font-size:.7rem;font-weight:600}
+.ft{text-align:center;padding:24px;color:#94a3b8;font-size:.78rem}
+</style>
+</head>
+<body>
+<div class='hd'>
+<h1>SampleOrderSystem &mdash; Final Verification Test Report</h1>
+<div class='sub'>반도체 시료 생산주문관리 시스템 &nbsp;|&nbsp; PRD 전체 기능 + Side Case + Bug Fix 회귀 테스트 &nbsp;|&nbsp; 2026-06-12T16:00:42.580</div>
+</div>
+<div class='sm'>
+<div class='st tt'><span class='v'>69</span><span class='l'>Total</span></div>
+<div class='st ps'><span class='v'>69</span><span class='l'>Passed</span></div>
+<div class='st fl'><span class='v'>0</span><span class='l'>Failed</span></div>
+<div class='st tm'><span class='v'>50ms</span><span class='l'>Duration</span></div>
+</div>
+<div class='pb'><div class='pf' style='width:100%'></div></div>
+<div class='ct'>
+<table>
+<thead><tr><th>#</th><th>Test Name</th><th>검증 내용</th><th>Result</th></tr></thead>
+<tbody>
+<tr class='sec'><td colspan='4'>[1] 시료 관리 &nbsp;<span class='badge pass'>PASS 13/13</span></td></tr>
+<tr><td class='n'>1</td><td class='nm'><code>Sample_등록_정상_ID_자동생성</code></td><td class='dc'>시료 등록 시 ID가 S-001부터 자동 발급됨</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>2</td><td class='nm'><code>Sample_다중등록_ID_순차증가</code></td><td class='dc'>여러 시료 등록 시 S-001, S-002, S-003 순서로 증가</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>3</td><td class='nm'><code>Sample_기존ID있을때_ID_최대값기반_증가</code></td><td class='dc'>S-010이 이미 있으면 다음 등록은 S-011</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>4</td><td class='nm'><code>Sample_이름검색_키워드_일치</code></td><td class='dc'>키워드 '웨이퍼'로 검색 시 해당 시료만 반환</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>5</td><td class='nm'><code>Sample_이름검색_여러개_일치</code></td><td class='dc'>키워드에 매칭되는 복수 결과 모두 반환</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>6</td><td class='nm'><code>Sample_이름검색_없으면_빈_목록</code></td><td class='dc'>일치 항목 없으면 빈 목록 반환</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>7</td><td class='nm'><code>Sample_findById_정상</code></td><td class='dc'>ID로 시료 조회 정상 동작</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>8</td><td class='nm'><code>Sample_findById_없으면_nullptr</code></td><td class='dc'>없는 ID 조회 시 nullptr 반환</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>9</td><td class='nm'><code>Sample_빈이름_예외</code></td><td class='dc'>빈 이름으로 등록 시 예외 발생</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>10</td><td class='nm'><code>Sample_수율_0_예외</code></td><td class='dc'>수율 0 입력 시 예외 발생</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>11</td><td class='nm'><code>Sample_수율_1초과_예외</code></td><td class='dc'>수율 1 초과 입력 시 예외 발생</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>12</td><td class='nm'><code>Sample_평균생산시간_0_예외</code></td><td class='dc'>평균 생산시간 0 입력 시 예외 발생</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>13</td><td class='nm'><code>Sample_음수재고_예외</code></td><td class='dc'>음수 재고 입력 시 예외 발생</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr class='sec'><td colspan='4'>[2] 시료 주문 &nbsp;<span class='badge pass'>PASS 8/8</span></td></tr>
+<tr><td class='n'>14</td><td class='nm'><code>Order_생성_초기상태_RESERVED</code></td><td class='dc'>주문 생성 즉시 RESERVED 상태</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>15</td><td class='nm'><code>Order_주문번호_형식_ORD_YYYYMMDD_NNNN</code></td><td class='dc'>주문번호 형식이 ORD-YYYYMMDD-NNNN인지 확인</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>16</td><td class='nm'><code>Order_연속생성_번호_순차증가</code></td><td class='dc'>같은 날 연속 생성 시 번호 순차 증가 및 중복 없음</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>17</td><td class='nm'><code>Order_BUGFIX_DB중복ID있어도_신규주문_고유번호_생성</code> <span class='btag'>Bug Fix</span></td><td class='dc'>[버그수정] DB에 중복 orderId가 있어도 새 주문은 최대값+1 기반으로 고유번호 발급</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>18</td><td class='nm'><code>Order_미등록시료_예외</code></td><td class='dc'>미등록 시료 ID로 주문 시 예외 발생</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>19</td><td class='nm'><code>Order_빈고객명_예외</code></td><td class='dc'>빈 고객명으로 주문 시 예외 발생</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>20</td><td class='nm'><code>Order_수량0_예외</code></td><td class='dc'>수량 0으로 주문 시 예외 발생</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>21</td><td class='nm'><code>Order_음수수량_예외</code></td><td class='dc'>음수 수량으로 주문 시 예외 발생</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr class='sec'><td colspan='4'>[3] 주문 승인/거절 &nbsp;<span class='badge pass'>PASS 19/19</span></td></tr>
+<tr><td class='n'>22</td><td class='nm'><code>Approval_재고충분_CONFIRMED_전이_재고차감</code></td><td class='dc'>재고 충분 → RESERVED→CONFIRMED, 재고 차감</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>23</td><td class='nm'><code>Approval_재고부족_PRODUCING_전이_생산큐등록</code></td><td class='dc'>재고 부족 → RESERVED→PRODUCING, 생산 큐 등록</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>24</td><td class='nm'><code>Approval_재고_정확히_같을때_CONFIRMED_경계값</code></td><td class='dc'>재고 == 주문수량 경계값 → CONFIRMED</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>25</td><td class='nm'><code>Approval_재고0에서_전량_PRODUCING</code></td><td class='dc'>재고 0 → 전량 부족 → PRODUCING</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>26</td><td class='nm'><code>Approval_거절_REJECTED_재고불변</code></td><td class='dc'>거절 시 REJECTED 전환, 재고 변동 없음</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>27</td><td class='nm'><code>Approval_실생산량공식_예시1_부족170_수율0_92</code></td><td class='dc'>PRD 공식: ceil(170/(0.92x0.9)) = 206</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>28</td><td class='nm'><code>Approval_실생산량공식_예시2_부족150_수율0_88</code></td><td class='dc'>PRD 공식: ceil(150/(0.88x0.9)) = 190</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>29</td><td class='nm'><code>Approval_실생산량공식_부족1_수율1_0</code></td><td class='dc'>경계값: ceil(1/(1.0x0.9)) = 2</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>30</td><td class='nm'><code>Approval_총생산시간_206ea_avgTime0_8</code></td><td class='dc'>총 생산시간: 206x0.8 = 164.8 min</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>31</td><td class='nm'><code>Approval_동일시료_연속3건_독립재고체크</code></td><td class='dc'>재고 200, 100x3건 → 첫 2건 CONFIRMED, 3번째 PRODUCING (승인 시점 재고 독립 체크)</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>32</td><td class='nm'><code>Approval_effectiveStock_생산진행분_포함</code></td><td class='dc'>생산 진행 중인 수량이 현재 재고에 실시간 반영됨</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>33</td><td class='nm'><code>Approval_effectiveStock_생산완료직전_최대반영</code></td><td class='dc'>100% 진행 시 actualProductQty 전량이 effectiveStock에 포함</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>34</td><td class='nm'><code>Approval_BUGFIX_REJECTED주문과_같은ID_RESERVED주문_승인_성공</code> <span class='btag'>Bug Fix</span></td><td class='dc'>[버그수정] REJECTED주문이 먼저 저장된 경우에도 같은 ID의 RESERVED주문 승인 정상 처리</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>35</td><td class='nm'><code>Approval_BUGFIX_중복ID_두RESERVED_순차승인</code> <span class='btag'>Bug Fix</span></td><td class='dc'>[버그수정] 같은 orderId를 가진 두 RESERVED주문 순차 승인 시 각각 정확히 1건씩만 처리</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>36</td><td class='nm'><code>Approval_없는주문_승인_예외</code></td><td class='dc'>없는 orderId 승인 시 예외 발생</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>37</td><td class='nm'><code>Approval_RESERVED아닌_주문_승인_예외</code></td><td class='dc'>RESERVED가 아닌 주문 승인 시 예외 발생</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>38</td><td class='nm'><code>Approval_없는주문_거절_예외</code></td><td class='dc'>없는 orderId 거절 시 예외 발생</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>39</td><td class='nm'><code>Approval_RESERVED아닌_주문_거절_예외</code></td><td class='dc'>RESERVED가 아닌 주문 거절 시 예외 발생</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>40</td><td class='nm'><code>Approval_reservedOrders_RESERVED만_반환</code></td><td class='dc'>승인 대기 목록은 RESERVED 상태만 포함</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr class='sec'><td colspan='4'>[5] 생산라인 &nbsp;<span class='badge pass'>PASS 10/10</span></td></tr>
+<tr><td class='n'>41</td><td class='nm'><code>Production_빈큐_list_빈목록</code></td><td class='dc'>생산 큐 비어있을 때 list() 빈 배열 반환</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>42</td><td class='nm'><code>Production_list_FIFO_순서_유지</code></td><td class='dc'>list() 결과가 큐 삽입 순서(FIFO) 유지</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>43</td><td class='nm'><code>Production_진행률_시작직후_0근접</code></td><td class='dc'>방금 시작한 생산의 진행률 약 0%</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>44</td><td class='nm'><code>Production_진행률_완료경과시_100_캡</code></td><td class='dc'>완료 시간 초과해도 진행률 100% 상한 유지</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>45</td><td class='nm'><code>Production_autoComplete_미완료_건너뜀</code></td><td class='dc'>생산 시간 미경과 시 autoComplete는 아무것도 완료 안 함</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>46</td><td class='nm'><code>Production_autoComplete_완료조건_CONFIRMED_전이</code></td><td class='dc'>경과시간 >= 총생산시간 시 자동으로 PRODUCING→CONFIRMED</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>47</td><td class='nm'><code>Production_autoComplete_연속여러건_순차완료</code></td><td class='dc'>큐 앞 여러 건이 연속으로 완료 조건이면 한 번에 처리</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>48</td><td class='nm'><code>Production_autoComplete_재고_정확히_갱신</code></td><td class='dc'>완료 후 재고 = 기존재고 + (실생산량 - 주문수량)</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>49</td><td class='nm'><code>Production_FIFO_두번째항목_직접완료_예외</code></td><td class='dc'>FIFO 원칙: 첫 번째 아닌 항목 직접 완료 시도 시 예외</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>50</td><td class='nm'><code>Production_complete_큐제거_확인</code></td><td class='dc'>생산 완료 후 생산 큐에서 해당 항목 제거</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr class='sec'><td colspan='4'>[6] 출고 처리 &nbsp;<span class='badge pass'>PASS 5/5</span></td></tr>
+<tr><td class='n'>51</td><td class='nm'><code>Release_CONFIRMED_RELEASED_전이</code></td><td class='dc'>CONFIRMED → RELEASED 상태 전환</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>52</td><td class='nm'><code>Release_confirmedOrders_CONFIRMED만_반환</code></td><td class='dc'>출고 목록은 CONFIRMED 상태만 포함</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>53</td><td class='nm'><code>Release_없는주문_예외</code></td><td class='dc'>없는 orderId 출고 시 예외 발생</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>54</td><td class='nm'><code>Release_CONFIRMED아닌주문_예외</code></td><td class='dc'>CONFIRMED 아닌 주문 출고 시 예외 발생</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>55</td><td class='nm'><code>Release_PRODUCING주문_출고_예외</code></td><td class='dc'>PRODUCING 주문 출고 시도 시 예외 발생</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr class='sec'><td colspan='4'>[4] 모니터링 &nbsp;<span class='badge pass'>PASS 6/6</span></td></tr>
+<tr><td class='n'>56</td><td class='nm'><code>Monitor_주문건수_REJECTED_제외_PRD명세</code></td><td class='dc'>PRD 명세: 모니터링 주문 건수에서 REJECTED 제외</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>57</td><td class='nm'><code>Monitor_재고_여유_상태</code></td><td class='dc'>재고 > 수요 → SUFFICIENT 상태</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>58</td><td class='nm'><code>Monitor_재고_부족_상태</code></td><td class='dc'>재고 < 수요 → SHORTAGE 상태</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>59</td><td class='nm'><code>Monitor_재고_고갈_상태</code></td><td class='dc'>재고 = 0 → DEPLETED 상태</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>60</td><td class='nm'><code>Monitor_재고_여유_RESERVED_PRODUCING_수요합산</code></td><td class='dc'>RESERVED + PRODUCING 수량 합산해 수요 계산</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>61</td><td class='nm'><code>Monitor_CONFIRMED_RELEASED_수요_미포함</code></td><td class='dc'>CONFIRMED, RELEASED 주문은 수요 계산 미포함</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr class='sec'><td colspan='4'>[전체] 데이터 영속성 &nbsp;<span class='badge pass'>PASS 4/4</span></td></tr>
+<tr><td class='n'>62</td><td class='nm'><code>Persist_저장후_재로드_주문상태보존</code></td><td class='dc'>repo.save() 후 재로드 시 주문 상태 보존</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>63</td><td class='nm'><code>Persist_생산큐_재로드_일치</code></td><td class='dc'>생산 큐 저장/재로드 후 내용 일치</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>64</td><td class='nm'><code>Persist_시료재고_재로드_일치</code></td><td class='dc'>시료 재고 저장/재로드 후 수량 일치</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>65</td><td class='nm'><code>Persist_출고후_재로드_RELEASED상태</code></td><td class='dc'>출고 후 저장/재로드 시 RELEASED 상태 보존</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr class='sec'><td colspan='4'>[통합] 전체 흐름 시나리오 &nbsp;<span class='badge pass'>PASS 4/4</span></td></tr>
+<tr><td class='n'>66</td><td class='nm'><code>Integration_전체흐름_충분재고_RESERVED_CONFIRMED_RELEASED</code></td><td class='dc'>통합: 시료등록 → 주문 → 승인(재고충분) → 출고 전체 흐름</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>67</td><td class='nm'><code>Integration_전체흐름_재고부족_PRODUCING_autoComplete_RELEASED</code></td><td class='dc'>통합: 시료등록 → 주문 → 승인(재고부족) → 생산완료 → 출고 전체 흐름</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>68</td><td class='nm'><code>Integration_BUGSCENARIO_REJECTED중복ID후_신규RESERVED_승인_성공</code> <span class='btag'>Bug Fix</span></td><td class='dc'>[통합-버그시나리오] REJECTED 중복 ID 상황에서 신규 주문 생성 후 승인 전체 흐름 정상 동작</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+<tr><td class='n'>69</td><td class='nm'><code>Integration_여러주문_혼재_상태전이_독립성</code></td><td class='dc'>여러 주문이 동시에 다른 상태로 존재해도 각자 독립적으로 전이</td><td class='st'><span class='badge pass'>PASS</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class='ft'>Google Test &bull; SampleOrderSystem v1.0 &bull; 2026-06-12</div>
+</body>
+</html>
