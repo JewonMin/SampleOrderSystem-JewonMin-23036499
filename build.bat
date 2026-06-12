@@ -85,6 +85,7 @@ set CL_FLAGS=/std:c++17 /EHsc /utf-8 /O2 /W3 /nologo
 set INC=/I"include" /I"src"
 set GT_INC=/I"googletest\googletest\include" /I"googletest\googletest"
 set GT_SRC=googletest\googletest\src\gtest-all.cc
+set GT_OBJ=build\gtest-all.obj
 set REPO=src\repository\JsonRepository.cpp
 set SVC_S=src\service\SampleService.cpp
 set SVC_O=src\service\OrderService.cpp
@@ -94,6 +95,14 @@ set VIEW_S=src\view\SampleView.cpp
 set VIEW_O=src\view\OrderView.cpp
 set VIEW_A=src\view\ApprovalView.cpp
 set VIEW_P=src\view\ProductionView.cpp
+
+:: ?? gtest-all.obj (compiled once, reused by all phase tests)
+if not exist "%GT_OBJ%" (
+    echo [*] Compiling gtest-all.obj ...
+    cl.exe %CL_FLAGS% %GT_INC% /c %GT_SRC% /Fo:%GT_OBJ% >build\build_gtest.log 2>&1
+    if errorlevel 1 ( echo [ERROR] gtest-all build failed: & type build\build_gtest.log & exit /b 1 )
+    echo [OK] gtest-all.obj
+)
 
 :: ?? App build
 echo.
@@ -109,7 +118,7 @@ echo [OK] SampleOrderSystem.exe
 :: ?? Phase 0 test
 echo.
 echo [*] Building Phase 0 tests...
-cl.exe %CL_FLAGS% %INC% %GT_INC% %GT_SRC% tests\test_phase0.cpp /Fe:build\test_phase0.exe /Fo:build\p0\ >build\build_test0.log 2>&1
+cl.exe %CL_FLAGS% %INC% %GT_INC% %GT_OBJ% tests\test_phase0.cpp /Fe:build\test_phase0.exe /Fo:build\p0\ >build\build_test0.log 2>&1
 if errorlevel 1 ( echo [ERROR] Phase 0 build failed: & type build\build_test0.log & exit /b 1 )
 echo [OK] test_phase0.exe
 build\test_phase0.exe
@@ -118,7 +127,7 @@ if errorlevel 1 ( echo [ERROR] Phase 0 tests FAILED & exit /b 1 )
 :: ?? Phase 1 test
 echo.
 echo [*] Building Phase 1 tests...
-cl.exe %CL_FLAGS% %INC% %GT_INC% %GT_SRC% %REPO% tests\test_phase1.cpp /Fe:build\test_phase1.exe /Fo:build\p1\ >build\build_test1.log 2>&1
+cl.exe %CL_FLAGS% %INC% %GT_INC% %GT_OBJ% %REPO% tests\test_phase1.cpp /Fe:build\test_phase1.exe /Fo:build\p1\ >build\build_test1.log 2>&1
 if errorlevel 1 ( echo [ERROR] Phase 1 build failed: & type build\build_test1.log & exit /b 1 )
 echo [OK] test_phase1.exe
 build\test_phase1.exe
@@ -127,7 +136,7 @@ if errorlevel 1 ( echo [ERROR] Phase 1 tests FAILED & exit /b 1 )
 :: ?? Phase 2 test
 echo.
 echo [*] Building Phase 2 tests...
-cl.exe %CL_FLAGS% %INC% %GT_INC% %GT_SRC% %REPO% %SVC_S% tests\test_phase2.cpp /Fe:build\test_phase2.exe /Fo:build\p2\ >build\build_test2.log 2>&1
+cl.exe %CL_FLAGS% %INC% %GT_INC% %GT_OBJ% %REPO% %SVC_S% tests\test_phase2.cpp /Fe:build\test_phase2.exe /Fo:build\p2\ >build\build_test2.log 2>&1
 if errorlevel 1 ( echo [ERROR] Phase 2 build failed: & type build\build_test2.log & exit /b 1 )
 echo [OK] test_phase2.exe
 build\test_phase2.exe
@@ -136,7 +145,7 @@ if errorlevel 1 ( echo [ERROR] Phase 2 tests FAILED & exit /b 1 )
 :: ?? Phase 3 test
 echo.
 echo [*] Building Phase 3 tests...
-cl.exe %CL_FLAGS% %INC% %GT_INC% %GT_SRC% %REPO% %SVC_S% %SVC_O% tests\test_phase3.cpp /Fe:build\test_phase3.exe /Fo:build\p3\ >build\build_test3.log 2>&1
+cl.exe %CL_FLAGS% %INC% %GT_INC% %GT_OBJ% %REPO% %SVC_S% %SVC_O% tests\test_phase3.cpp /Fe:build\test_phase3.exe /Fo:build\p3\ >build\build_test3.log 2>&1
 if errorlevel 1 ( echo [ERROR] Phase 3 build failed: & type build\build_test3.log & exit /b 1 )
 echo [OK] test_phase3.exe
 build\test_phase3.exe
@@ -145,7 +154,7 @@ if errorlevel 1 ( echo [ERROR] Phase 3 tests FAILED & exit /b 1 )
 :: ?? Phase 4 test
 echo.
 echo [*] Building Phase 4 tests...
-cl.exe %CL_FLAGS% %INC% %GT_INC% %GT_SRC% %REPO% %SVC_S% %SVC_O% %SVC_A% tests\test_phase4.cpp /Fe:build\test_phase4.exe /Fo:build\p4\ >build\build_test4.log 2>&1
+cl.exe %CL_FLAGS% %INC% %GT_INC% %GT_OBJ% %REPO% %SVC_S% %SVC_O% %SVC_A% tests\test_phase4.cpp /Fe:build\test_phase4.exe /Fo:build\p4\ >build\build_test4.log 2>&1
 if errorlevel 1 ( echo [ERROR] Phase 4 build failed: & type build\build_test4.log & exit /b 1 )
 echo [OK] test_phase4.exe
 build\test_phase4.exe
@@ -154,7 +163,7 @@ if errorlevel 1 ( echo [ERROR] Phase 4 tests FAILED & exit /b 1 )
 :: ?? Phase 5 test
 echo.
 echo [*] Building Phase 5 tests...
-cl.exe %CL_FLAGS% %INC% %GT_INC% %GT_SRC% %REPO% %SVC_S% %SVC_O% %SVC_A% %SVC_P% tests\test_phase5.cpp /Fe:build\test_phase5.exe /Fo:build\p5\ >build\build_test5.log 2>&1
+cl.exe %CL_FLAGS% %INC% %GT_INC% %GT_OBJ% %REPO% %SVC_S% %SVC_O% %SVC_A% %SVC_P% tests\test_phase5.cpp /Fe:build\test_phase5.exe /Fo:build\p5\ >build\build_test5.log 2>&1
 if errorlevel 1 ( echo [ERROR] Phase 5 build failed: & type build\build_test5.log & exit /b 1 )
 echo [OK] test_phase5.exe
 build\test_phase5.exe
