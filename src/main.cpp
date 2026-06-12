@@ -46,16 +46,25 @@ int main() {
     ReleaseView    releaseView(releaseService, sampleService);
     MonitorView    monitorView(monitorService, productionService);
 
+    auto badge = [](int n) -> std::string {
+        if (n <= 0) return "";
+        return "  (" + std::to_string(n) + "건 대기)";
+    };
+
     int choice = -1;
     while (choice != 0) {
+        int pendingApproval    = static_cast<int>(approvalService.reservedOrders().size());
+        int activeProductions  = static_cast<int>(productionService.list().size());
+        int pendingRelease     = static_cast<int>(releaseService.confirmedOrders().size());
+
         std::cout << "\n============================================================\n";
         std::cout << "          반도체 시료 생산주문관리 시스템\n";
         std::cout << "============================================================\n";
         std::cout << "  [1] 시료 관리\n";
         std::cout << "  [2] 시료 주문\n";
-        std::cout << "  [3] 주문 승인/거절\n";
-        std::cout << "  [4] 생산라인 관리\n";
-        std::cout << "  [5] 출고 처리\n";
+        std::cout << "  [3] 주문 승인/거절"   << badge(pendingApproval)   << "\n";
+        std::cout << "  [4] 생산라인 관리"    << badge(activeProductions)  << "\n";
+        std::cout << "  [5] 출고 처리"        << badge(pendingRelease)     << "\n";
         std::cout << "  [6] 모니터링\n";
         std::cout << "  [0] 종료\n";
         std::cout << "------------------------------------------------------------\n";

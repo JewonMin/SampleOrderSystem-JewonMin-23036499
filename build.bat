@@ -81,6 +81,7 @@ if not exist "build\p4" mkdir build\p4
 if not exist "build\p5" mkdir build\p5
 if not exist "build\p6" mkdir build\p6
 if not exist "build\p7" mkdir build\p7
+if not exist "build\p8" mkdir build\p8
 
 :: ?? Compiler settings (single-line variables only)
 set CL_FLAGS=/std:c++17 /EHsc /utf-8 /O2 /W3 /nologo
@@ -192,6 +193,15 @@ if errorlevel 1 ( echo [ERROR] Phase 7 build failed: & type build\build_test7.lo
 echo [OK] test_phase7.exe
 build\test_phase7.exe
 if errorlevel 1 ( echo [ERROR] Phase 7 tests FAILED & exit /b 1 )
+
+:: ?? Phase 8 integration test
+echo.
+echo [*] Building Phase 8 tests...
+cl.exe %CL_FLAGS% %INC% %GT_INC% %GT_OBJ% %REPO% %SVC_S% %SVC_O% %SVC_A% %SVC_P% %SVC_R% %SVC_M% tests\test_phase8.cpp /Fe:build\test_phase8.exe /Fo:build\p8\ >build\build_test8.log 2>&1
+if errorlevel 1 ( echo [ERROR] Phase 8 build failed: & type build\build_test8.log & exit /b 1 )
+echo [OK] test_phase8.exe
+build\test_phase8.exe
+if errorlevel 1 ( echo [ERROR] Phase 8 tests FAILED & exit /b 1 )
 
 echo.
 echo ============================================================
