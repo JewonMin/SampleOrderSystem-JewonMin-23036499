@@ -14,6 +14,8 @@
 #include "view/ProductionView.h"
 #include "service/ReleaseService.h"
 #include "view/ReleaseView.h"
+#include "service/MonitorService.h"
+#include "view/MonitorView.h"
 
 static void setupConsole() {
     SetConsoleOutputCP(CP_UTF8);
@@ -35,12 +37,14 @@ int main() {
     ApprovalService  approvalService(repo);
     ProductionService productionService(repo);
     ReleaseService    releaseService(repo);
+    MonitorService    monitorService(repo);
 
     SampleView     sampleView(sampleService);
     OrderView      orderView(orderService, sampleService);
     ApprovalView   approvalView(approvalService, sampleService);
     ProductionView productionView(productionService);
     ReleaseView    releaseView(releaseService, sampleService);
+    MonitorView    monitorView(monitorService, productionService);
 
     int choice = -1;
     while (choice != 0) {
@@ -52,6 +56,7 @@ int main() {
         std::cout << "  [3] 주문 승인/거절\n";
         std::cout << "  [4] 생산라인 관리\n";
         std::cout << "  [5] 출고 처리\n";
+        std::cout << "  [6] 모니터링\n";
         std::cout << "  [0] 종료\n";
         std::cout << "------------------------------------------------------------\n";
         std::cout << "  선택 > ";
@@ -70,6 +75,7 @@ int main() {
             case 3: approvalView.run();    break;
             case 4: productionView.run();  break;
             case 5: releaseView.run();     break;
+            case 6: monitorView.run();     break;
             case 0: break;
             default: std::cout << "  (준비 중인 메뉴입니다)\n";
         }
