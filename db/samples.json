@@ -17,21 +17,21 @@
     "avgProductionTime": 0.05,
     "id": "S-003",
     "name": "SiC 파워기판-6인치",
-    "stock": 30,
+    "stock": 17,
     "yield": 0.92
   },
   {
     "avgProductionTime": 0.05,
     "id": "S-004",
     "name": "포토레지스트-PR7",
-    "stock": 910,
+    "stock": 909,
     "yield": 0.95
   },
   {
     "avgProductionTime": 0.05,
     "id": "S-005",
     "name": "산화막 웨이퍼-SiO2",
-    "stock": 0,
+    "stock": -40,
     "yield": 0.88
   },
   {

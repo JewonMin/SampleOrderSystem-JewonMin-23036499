@@ -39,12 +39,18 @@ std::string OrderService::generateOrderId() const {
     std::strftime(dateBuf, sizeof(dateBuf), "%Y%m%d", &t);
     std::string prefix = std::string("ORD-") + dateBuf + "-";
 
-    int count = 0;
-    for (const auto& o : m_repo.orders())
-        if (o.orderId.rfind(prefix, 0) == 0) ++count;
+    int maxSeq = 0;
+    for (const auto& o : m_repo.orders()) {
+        if (o.orderId.rfind(prefix, 0) == 0) {
+            try {
+                int seq = std::stoi(o.orderId.substr(prefix.size()));
+                if (seq > maxSeq) maxSeq = seq;
+            } catch (...) {}
+        }
+    }
 
     char buf[32];
-    std::snprintf(buf, sizeof(buf), "ORD-%s-%04d", dateBuf, count + 1);
+    std::snprintf(buf, sizeof(buf), "ORD-%s-%04d", dateBuf, maxSeq + 1);
     return buf;
 }
 

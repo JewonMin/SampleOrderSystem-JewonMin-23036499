@@ -1,38 +1,11 @@
 [
   {
-    "actualProductQty": 61,
-    "orderId": "ORD-20260612-0005",
+    "actualProductQty": 222,
+    "orderId": "ORD-20260612-0010",
     "sampleId": "S-003",
-    "shortageQty": 50,
-    "startedAt": "2026-06-12 14:36:52",
-    "startedAtEpoch": 1781242612,
-    "totalProductionTime": 10.0
-  },
-  {
-    "actualProductQty": 190,
-    "orderId": "ORD-20260612-0006",
-    "sampleId": "S-005",
-    "shortageQty": 150,
-    "startedAt": "2026-06-12 14:36:52",
-    "startedAtEpoch": 1781242612,
-    "totalProductionTime": 9.5
-  },
-  {
-    "actualProductQty": 206,
-    "orderId": "ORD-20260612-0007",
-    "sampleId": "S-003",
-    "shortageQty": 170,
-    "startedAt": "2026-06-12 14:36:52",
-    "startedAtEpoch": 1781242612,
-    "totalProductionTime": 10.3
-  },
-  {
-    "actualProductQty": 220,
-    "orderId": "ORD-20260612-0008",
-    "sampleId": "S-005",
-    "shortageQty": 174,
-    "startedAt": "2026-06-12 14:43:11",
-    "startedAtEpoch": 1781242991,
-    "totalProductionTime": 11.0
+    "shortageQty": 183,
+    "startedAt": "2026-06-12 15:55:08",
+    "startedAtEpoch": 1781247308,
+    "totalProductionTime": 11.100000000000001
   }
 ]

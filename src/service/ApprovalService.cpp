@@ -120,6 +120,8 @@ void ApprovalService::reject(const std::string& orderId) {
 
 Order* ApprovalService::findOrder(const std::string& orderId) {
     for (auto& o : m_repo.orders())
+        if (o.orderId == orderId && o.status == OrderStatus::RESERVED) return &o;
+    for (auto& o : m_repo.orders())
         if (o.orderId == orderId) return &o;
     return nullptr;
 }
