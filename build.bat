@@ -2,11 +2,14 @@
 setlocal EnableDelayedExpansion
 chcp 65001 >nul
 
+:: Change to batch file's own directory so relative paths always work
+cd /d "%~dp0"
+
 echo ============================================================
 echo   SampleOrderSystem Build ^& Test
 echo ============================================================
 
-:: ── Visual Studio 환경 설정 (vswhere 우선, 하드코딩 경로 fallback)
+:: ?? Visual Studio environment setup (vswhere first, hardcoded fallbacks)
 set "VCVARS="
 
 if exist "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (
@@ -27,204 +30,126 @@ if not defined VCVARS (
         "C:\Program Files\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
         "C:\Program Files (x86)\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
     ) do (
-        if exist %%P set "VCVARS=%%P"
+        if exist %%P set "VCVARS=%%~P"
     )
 )
 
 if not defined VCVARS (
-    echo [ERROR] Visual Studio C++ 빌드 도구를 찾을 수 없습니다.
+    echo [ERROR] Visual Studio C++ build tools not found.
     exit /b 1
 )
-call !VCVARS! >nul 2>&1
-echo [OK] Visual Studio 환경 설정 완료
+call "!VCVARS!" >nul 2>&1
+if errorlevel 1 (
+    echo [ERROR] Failed to initialize Visual Studio environment
+    exit /b 1
+)
+echo [OK] Visual Studio environment ready
 
-:: ── nlohmann/json 다운로드
+:: ?? nlohmann/json download
 if not exist "include\nlohmann\json.hpp" (
-    echo [*] nlohmann/json 다운로드 중...
+    echo [*] Downloading nlohmann/json...
     if not exist "include\nlohmann" mkdir include\nlohmann
-    powershell -NoProfile -Command ^
-        "Invoke-WebRequest -Uri 'https://github.com/nlohmann/json/releases/download/v3.11.3/json.hpp' -OutFile 'include\nlohmann\json.hpp'"
+    powershell -NoProfile -Command "Invoke-WebRequest -Uri 'https://github.com/nlohmann/json/releases/download/v3.11.3/json.hpp' -OutFile 'include\nlohmann\json.hpp'"
     if not exist "include\nlohmann\json.hpp" (
-        echo [ERROR] json.hpp 다운로드 실패
+        echo [ERROR] Failed to download json.hpp
         exit /b 1
     )
-    echo [OK] json.hpp 다운로드 완료
+    echo [OK] json.hpp downloaded
 )
 
-:: ── Google Test 다운로드
+:: ?? Google Test download
 if not exist "googletest\googletest\include\gtest\gtest.h" (
-    echo [*] Google Test v1.14.0 다운로드 중...
-    powershell -NoProfile -Command ^
-        "Invoke-WebRequest -Uri 'https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip' -OutFile 'gtest_dl.zip'"
-    powershell -NoProfile -Command ^
-        "Expand-Archive -Path 'gtest_dl.zip' -DestinationPath '.' -Force"
+    echo [*] Downloading Google Test v1.14.0...
+    powershell -NoProfile -Command "Invoke-WebRequest -Uri 'https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip' -OutFile 'gtest_dl.zip'"
+    powershell -NoProfile -Command "Expand-Archive -Path 'gtest_dl.zip' -DestinationPath '.' -Force"
     if exist "googletest-1.14.0" rename "googletest-1.14.0" "googletest"
     if exist "gtest_dl.zip" del gtest_dl.zip
     if not exist "googletest\googletest\include\gtest\gtest.h" (
-        echo [ERROR] Google Test 다운로드 실패
+        echo [ERROR] Failed to download Google Test
         exit /b 1
     )
-    echo [OK] Google Test 다운로드 완료
+    echo [OK] Google Test downloaded
 )
 
-:: ── 빌드 폴더 생성
-if not exist "build" mkdir build
+:: ?? Build directories
+if not exist "build"    mkdir build
+if not exist "build\p0" mkdir build\p0
+if not exist "build\p1" mkdir build\p1
+if not exist "build\p2" mkdir build\p2
+if not exist "build\p3" mkdir build\p3
+if not exist "build\p4" mkdir build\p4
 
-set GTEST_ROOT=googletest\googletest
+:: ?? Compiler settings (single-line variables only)
 set CL_FLAGS=/std:c++17 /EHsc /utf-8 /O2 /W3 /nologo
-set INCLUDES=/I"include" /I"src"
-set GTEST_INCLUDES=/I"%GTEST_ROOT%\include" /I"%GTEST_ROOT%"
+set INC=/I"include" /I"src"
+set GT_INC=/I"googletest\googletest\include" /I"googletest\googletest"
+set GT_SRC=googletest\googletest\src\gtest-all.cc
+set REPO=src\repository\JsonRepository.cpp
+set SVC_S=src\service\SampleService.cpp
+set SVC_O=src\service\OrderService.cpp
+set SVC_A=src\service\ApprovalService.cpp
+set VIEW_S=src\view\SampleView.cpp
+set VIEW_O=src\view\OrderView.cpp
+set VIEW_A=src\view\ApprovalView.cpp
 
-:: ── 공통 소스 (Phase별 추가)
-set APP_SRC=src\main.cpp ^
-    src\repository\JsonRepository.cpp ^
-    src\service\SampleService.cpp ^
-    src\service\OrderService.cpp ^
-    src\service\ApprovalService.cpp ^
-    src\view\SampleView.cpp ^
-    src\view\OrderView.cpp ^
-    src\view\ApprovalView.cpp
-
-set SHARED_SRC=src\repository\JsonRepository.cpp ^
-    src\service\SampleService.cpp ^
-    src\service\OrderService.cpp ^
-    src\service\ApprovalService.cpp
-
-:: ── 메인 앱 빌드
+:: ?? App build
 echo.
-echo [*] 앱 빌드 중...
-cl.exe %CL_FLAGS% %INCLUDES% ^
-    %APP_SRC% ^
-    /Fe:SampleOrderSystem.exe ^
-    /Fo:build\ >build\build_app.log 2>&1
+echo [*] Building app...
+cl.exe %CL_FLAGS% %INC% src\main.cpp %REPO% %SVC_S% %SVC_O% %SVC_A% %VIEW_S% %VIEW_O% %VIEW_A% /Fe:SampleOrderSystem.exe /Fo:build\ >build\build_app.log 2>&1
 if errorlevel 1 (
-    echo [ERROR] 앱 빌드 실패:
+    echo [ERROR] App build failed:
     type build\build_app.log
     exit /b 1
 )
-echo [OK] SampleOrderSystem.exe 빌드 완료
+echo [OK] SampleOrderSystem.exe
 
-:: ── Phase 0 테스트 빌드 및 실행
-if not exist "build\p0" mkdir build\p0
+:: ?? Phase 0 test
 echo.
-echo [*] Phase 0 테스트 빌드 중...
-cl.exe %CL_FLAGS% %INCLUDES% %GTEST_INCLUDES% ^
-    "%GTEST_ROOT%\src\gtest-all.cc" ^
-    tests\test_phase0.cpp ^
-    /Fe:build\test_phase0.exe ^
-    /Fo:build\p0\ >build\build_test0.log 2>&1
-if errorlevel 1 (
-    echo [ERROR] Phase 0 테스트 빌드 실패:
-    type build\build_test0.log
-    exit /b 1
-)
-echo [OK] test_phase0.exe 빌드 완료
-
-echo [*] Phase 0 테스트 실행 중...
+echo [*] Building Phase 0 tests...
+cl.exe %CL_FLAGS% %INC% %GT_INC% %GT_SRC% tests\test_phase0.cpp /Fe:build\test_phase0.exe /Fo:build\p0\ >build\build_test0.log 2>&1
+if errorlevel 1 ( echo [ERROR] Phase 0 build failed: & type build\build_test0.log & exit /b 1 )
+echo [OK] test_phase0.exe
 build\test_phase0.exe
-if errorlevel 1 (
-    echo [ERROR] Phase 0 테스트 실패
-    exit /b 1
-)
+if errorlevel 1 ( echo [ERROR] Phase 0 tests FAILED & exit /b 1 )
 
-:: ── Phase 1 테스트 빌드 및 실행
-if not exist "build\p1" mkdir build\p1
+:: ?? Phase 1 test
 echo.
-echo [*] Phase 1 테스트 빌드 중...
-cl.exe %CL_FLAGS% %INCLUDES% %GTEST_INCLUDES% ^
-    "%GTEST_ROOT%\src\gtest-all.cc" ^
-    %SHARED_SRC% ^
-    tests\test_phase1.cpp ^
-    /Fe:build\test_phase1.exe ^
-    /Fo:build\p1\ >build\build_test1.log 2>&1
-if errorlevel 1 (
-    echo [ERROR] Phase 1 테스트 빌드 실패:
-    type build\build_test1.log
-    exit /b 1
-)
-echo [OK] test_phase1.exe 빌드 완료
-
-echo [*] Phase 1 테스트 실행 중...
+echo [*] Building Phase 1 tests...
+cl.exe %CL_FLAGS% %INC% %GT_INC% %GT_SRC% %REPO% tests\test_phase1.cpp /Fe:build\test_phase1.exe /Fo:build\p1\ >build\build_test1.log 2>&1
+if errorlevel 1 ( echo [ERROR] Phase 1 build failed: & type build\build_test1.log & exit /b 1 )
+echo [OK] test_phase1.exe
 build\test_phase1.exe
-if errorlevel 1 (
-    echo [ERROR] Phase 1 테스트 실패
-    exit /b 1
-)
+if errorlevel 1 ( echo [ERROR] Phase 1 tests FAILED & exit /b 1 )
 
-:: ── Phase 2 테스트 빌드 및 실행
-if not exist "build\p2" mkdir build\p2
+:: ?? Phase 2 test
 echo.
-echo [*] Phase 2 테스트 빌드 중...
-cl.exe %CL_FLAGS% %INCLUDES% %GTEST_INCLUDES% ^
-    "%GTEST_ROOT%\src\gtest-all.cc" ^
-    %SHARED_SRC% ^
-    tests\test_phase2.cpp ^
-    /Fe:build\test_phase2.exe ^
-    /Fo:build\p2\ >build\build_test2.log 2>&1
-if errorlevel 1 (
-    echo [ERROR] Phase 2 테스트 빌드 실패:
-    type build\build_test2.log
-    exit /b 1
-)
-echo [OK] test_phase2.exe 빌드 완료
-
-echo [*] Phase 2 테스트 실행 중...
+echo [*] Building Phase 2 tests...
+cl.exe %CL_FLAGS% %INC% %GT_INC% %GT_SRC% %REPO% %SVC_S% tests\test_phase2.cpp /Fe:build\test_phase2.exe /Fo:build\p2\ >build\build_test2.log 2>&1
+if errorlevel 1 ( echo [ERROR] Phase 2 build failed: & type build\build_test2.log & exit /b 1 )
+echo [OK] test_phase2.exe
 build\test_phase2.exe
-if errorlevel 1 (
-    echo [ERROR] Phase 2 테스트 실패
-    exit /b 1
-)
+if errorlevel 1 ( echo [ERROR] Phase 2 tests FAILED & exit /b 1 )
 
-:: ── Phase 3 테스트 빌드 및 실행
-if not exist "build\p3" mkdir build\p3
+:: ?? Phase 3 test
 echo.
-echo [*] Phase 3 테스트 빌드 중...
-cl.exe %CL_FLAGS% %INCLUDES% %GTEST_INCLUDES% ^
-    "%GTEST_ROOT%\src\gtest-all.cc" ^
-    %SHARED_SRC% ^
-    tests\test_phase3.cpp ^
-    /Fe:build\test_phase3.exe ^
-    /Fo:build\p3\ >build\build_test3.log 2>&1
-if errorlevel 1 (
-    echo [ERROR] Phase 3 테스트 빌드 실패:
-    type build\build_test3.log
-    exit /b 1
-)
-echo [OK] test_phase3.exe 빌드 완료
-
-echo [*] Phase 3 테스트 실행 중...
+echo [*] Building Phase 3 tests...
+cl.exe %CL_FLAGS% %INC% %GT_INC% %GT_SRC% %REPO% %SVC_S% %SVC_O% tests\test_phase3.cpp /Fe:build\test_phase3.exe /Fo:build\p3\ >build\build_test3.log 2>&1
+if errorlevel 1 ( echo [ERROR] Phase 3 build failed: & type build\build_test3.log & exit /b 1 )
+echo [OK] test_phase3.exe
 build\test_phase3.exe
-if errorlevel 1 (
-    echo [ERROR] Phase 3 테스트 실패
-    exit /b 1
-)
+if errorlevel 1 ( echo [ERROR] Phase 3 tests FAILED & exit /b 1 )
 
-:: ── Phase 4 테스트 빌드 및 실행
-if not exist "build\p4" mkdir build\p4
+:: ?? Phase 4 test
 echo.
-echo [*] Phase 4 테스트 빌드 중...
-cl.exe %CL_FLAGS% %INCLUDES% %GTEST_INCLUDES% ^
-    "%GTEST_ROOT%\src\gtest-all.cc" ^
-    %SHARED_SRC% ^
-    tests\test_phase4.cpp ^
-    /Fe:build\test_phase4.exe ^
-    /Fo:build\p4\ >build\build_test4.log 2>&1
-if errorlevel 1 (
-    echo [ERROR] Phase 4 테스트 빌드 실패:
-    type build\build_test4.log
-    exit /b 1
-)
-echo [OK] test_phase4.exe 빌드 완료
-
-echo [*] Phase 4 테스트 실행 중...
+echo [*] Building Phase 4 tests...
+cl.exe %CL_FLAGS% %INC% %GT_INC% %GT_SRC% %REPO% %SVC_S% %SVC_O% %SVC_A% tests\test_phase4.cpp /Fe:build\test_phase4.exe /Fo:build\p4\ >build\build_test4.log 2>&1
+if errorlevel 1 ( echo [ERROR] Phase 4 build failed: & type build\build_test4.log & exit /b 1 )
+echo [OK] test_phase4.exe
 build\test_phase4.exe
-if errorlevel 1 (
-    echo [ERROR] Phase 4 테스트 실패
-    exit /b 1
-)
+if errorlevel 1 ( echo [ERROR] Phase 4 tests FAILED & exit /b 1 )
 
 echo.
 echo ============================================================
-echo   Build ^& Test 완료
+echo   Build ^& Test ALL PASSED
 echo ============================================================
 exit /b 0
