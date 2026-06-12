@@ -7,6 +7,7 @@
 | 문서 | 내용 |
 |------|------|
 | [시스템 개요](docs/system-overview.md) | 배경, 등장 역할, 생산 라인, 주문 상태 흐름도 |
+| [주문 상태 흐름](docs/order-status.md) | 상태 정의(RESERVED/REJECTED/PRODUCING/CONFIRMED/RELEASED), 전이 조건 |
 
 > 이하 항목은 assignment.pdf 검토 후 순차적으로 추가 예정
 
