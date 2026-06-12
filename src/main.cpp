@@ -6,8 +6,10 @@
 #include "repository/JsonRepository.h"
 #include "service/SampleService.h"
 #include "service/OrderService.h"
+#include "service/ApprovalService.h"
 #include "view/SampleView.h"
 #include "view/OrderView.h"
+#include "view/ApprovalView.h"
 
 static void setupConsole() {
     SetConsoleOutputCP(CP_UTF8);
@@ -24,11 +26,13 @@ int main() {
     JsonRepository repo;
     repo.load();
 
-    SampleService sampleService(repo);
-    OrderService  orderService(repo);
+    SampleService   sampleService(repo);
+    OrderService    orderService(repo);
+    ApprovalService approvalService(repo);
 
-    SampleView sampleView(sampleService);
-    OrderView  orderView(orderService, sampleService);
+    SampleView   sampleView(sampleService);
+    OrderView    orderView(orderService, sampleService);
+    ApprovalView approvalView(approvalService, sampleService);
 
     int choice = -1;
     while (choice != 0) {
@@ -37,6 +41,7 @@ int main() {
         std::cout << "============================================================\n";
         std::cout << "  [1] 시료 관리\n";
         std::cout << "  [2] 시료 주문\n";
+        std::cout << "  [3] 주문 승인/거절\n";
         std::cout << "  [0] 종료\n";
         std::cout << "------------------------------------------------------------\n";
         std::cout << "  선택 > ";
@@ -50,8 +55,9 @@ int main() {
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
         switch (choice) {
-            case 1: sampleView.run(); break;
-            case 2: orderView.run();  break;
+            case 1: sampleView.run();   break;
+            case 2: orderView.run();    break;
+            case 3: approvalView.run(); break;
             case 0: break;
             default: std::cout << "  (준비 중인 메뉴입니다)\n";
         }

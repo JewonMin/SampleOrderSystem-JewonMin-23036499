@@ -80,12 +80,15 @@ set APP_SRC=src\main.cpp ^
     src\repository\JsonRepository.cpp ^
     src\service\SampleService.cpp ^
     src\service\OrderService.cpp ^
+    src\service\ApprovalService.cpp ^
     src\view\SampleView.cpp ^
-    src\view\OrderView.cpp
+    src\view\OrderView.cpp ^
+    src\view\ApprovalView.cpp
 
 set SHARED_SRC=src\repository\JsonRepository.cpp ^
     src\service\SampleService.cpp ^
-    src\service\OrderService.cpp
+    src\service\OrderService.cpp ^
+    src\service\ApprovalService.cpp
 
 :: ── 메인 앱 빌드
 echo.
@@ -193,6 +196,30 @@ echo [*] Phase 3 테스트 실행 중...
 build\test_phase3.exe
 if errorlevel 1 (
     echo [ERROR] Phase 3 테스트 실패
+    exit /b 1
+)
+
+:: ── Phase 4 테스트 빌드 및 실행
+if not exist "build\p4" mkdir build\p4
+echo.
+echo [*] Phase 4 테스트 빌드 중...
+cl.exe %CL_FLAGS% %INCLUDES% %GTEST_INCLUDES% ^
+    "%GTEST_ROOT%\src\gtest-all.cc" ^
+    %SHARED_SRC% ^
+    tests\test_phase4.cpp ^
+    /Fe:build\test_phase4.exe ^
+    /Fo:build\p4\ >build\build_test4.log 2>&1
+if errorlevel 1 (
+    echo [ERROR] Phase 4 테스트 빌드 실패:
+    type build\build_test4.log
+    exit /b 1
+)
+echo [OK] test_phase4.exe 빌드 완료
+
+echo [*] Phase 4 테스트 실행 중...
+build\test_phase4.exe
+if errorlevel 1 (
+    echo [ERROR] Phase 4 테스트 실패
     exit /b 1
 )
 
